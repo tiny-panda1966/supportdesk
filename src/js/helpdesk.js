@@ -312,9 +312,12 @@ function clearNotificationsForTicket(ticketId) {
     }
 }
 
-function toggleNotificationPopup() {
+function toggleNotificationPopup(e) {
+    e.preventDefault();
+    e.stopPropagation();
     const popup = document.getElementById('notificationPopup');
     popup.classList.toggle('active');
+    console.log('Notification popup toggled:', popup.classList.contains('active'));
 }
 
 function closeNotificationPopup() {
