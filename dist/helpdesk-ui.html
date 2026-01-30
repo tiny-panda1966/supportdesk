@@ -252,9 +252,6 @@ body {
 .notification-message strong { color: var(--grey-700); }
 .notification-empty { padding: 40px 20px; text-align: center; color: var(--grey-500); font-size: 14px; }
 
-/* Position header for popup context */
-.header { position: relative; }
-
 .user-info { display: flex; align-items: center; gap: 12px; }
 .user-avatar {
     width: 40px;
@@ -1722,9 +1719,12 @@ function clearNotificationsForTicket(ticketId) {
     }
 }
 
-function toggleNotificationPopup() {
+function toggleNotificationPopup(e) {
+    e.preventDefault();
+    e.stopPropagation();
     const popup = document.getElementById('notificationPopup');
     popup.classList.toggle('active');
+    console.log('Notification popup toggled:', popup.classList.contains('active'));
 }
 
 function closeNotificationPopup() {
