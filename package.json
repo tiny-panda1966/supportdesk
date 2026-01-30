@@ -1,1 +1,13 @@
-
+{
+  "name": "helpdesk-ui",
+  "version": "1.0.0",
+  "description": "Tiny Panda Helpdesk UI - Modular HTML/CSS/JS for Wix Blocks",
+  "main": "build.js",
+  "scripts": {
+    "build": "node build.js",
+    "watch": "node -e \"const chokidar = require('chokidar'); chokidar.watch('src').on('change', () => { console.log('Rebuilding...'); require('child_process').execSync('node build.js', {stdio: 'inherit'}); });\""
+  },
+  "author": "Tiny Panda",
+  "license": "UNLICENSED",
+  "private": true
+}
