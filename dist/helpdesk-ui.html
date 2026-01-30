@@ -394,6 +394,8 @@ body {
 .ticket-item.active { background: var(--accent-light); border-left: 3px solid var(--accent); }
 .ticket-item-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
 .ticket-number { font-weight: 600; color: var(--accent); font-size: 14px; }
+.ticket-number-block { display: flex; flex-direction: column; gap: 2px; }
+.ticket-datetime { font-size: 11px; color: var(--grey-500); font-weight: 400; }
 .ticket-status { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
 .ticket-status.open { background: #e3f2fd; color: var(--status-open); }
 .ticket-status.in-progress { background: #fff3e0; color: var(--status-progress); }
@@ -1645,7 +1647,10 @@ function renderTickets() {
         const unread = state.unreadNotes[ticket._id] || 0;
         return '<div class="ticket-item ' + (state.selectedTicket && state.selectedTicket._id === ticket._id ? 'active' : '') + '" data-id="' + ticket._id + '">' +
             '<div class="ticket-item-header">' +
-                '<span class="ticket-number">' + ticket.ticketNumber + (unread > 0 ? ' <span style="color:#f44336;font-weight:bold;">(' + unread + ' new)</span>' : '') + '</span>' +
+                '<div class="ticket-number-block">' +
+                    '<span class="ticket-number">#' + formatTicketNumber(ticket.ticketNumber) + (unread > 0 ? ' <span style="color:#f44336;font-weight:bold;">(' + unread + ' new)</span>' : '') + '</span>' +
+                    '<span class="ticket-datetime">' + formatFullDateTime(ticket._createdDate) + '</span>' +
+                '</div>' +
                 '<span class="ticket-status ' + ticket.status + '">' + formatStatus(ticket.status) + '</span>' +
             '</div>' +
             '<div class="ticket-subject">' + ticket.subject + '<span class="ticket-type-badge type-' + ticketType + '">' + typeLabel + '</span></div>' +
@@ -2127,6 +2132,26 @@ function formatCategory(category) {
         'project': 'Project'
     };
     return map[category] || category;
+}
+
+function formatTicketNumber(num) {
+    const str = String(num).replace(/[^0-9]/g, '');
+    if (str.length > 3) {
+        return str.slice(0, 3) + '-' + str.slice(3);
+    }
+    return str;
+}
+
+function formatFullDateTime(date) {
+    if (!date) return '';
+    const d = new Date(date);
+    const day = d.getDate();
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[d.getMonth()];
+    const year = d.getFullYear();
+    const hours = d.getHours().toString().padStart(2, '0');
+    const mins = d.getMinutes().toString().padStart(2, '0');
+    return day + ' ' + month + ' ' + year + ', ' + hours + ':' + mins;
 }
 
 function showToast(message, type) {
