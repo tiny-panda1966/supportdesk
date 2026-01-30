@@ -58,6 +58,22 @@
             </div>
         </header>
 
+        <!-- Notification Popup -->
+        <div class="notification-popup" id="notificationPopup">
+            <div class="notification-popup-header">
+                <h3>Notifications</h3>
+                <div class="notification-popup-actions">
+                    <button class="notification-clear-btn" id="clearAllNotifications">Clear All</button>
+                    <button class="notification-close-btn" id="closeNotificationPopup">
+                        <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="notification-list" id="notificationList">
+                <div class="notification-empty">No new notifications</div>
+            </div>
+        </div>
+
         <!-- Profile Setup Banner -->
         <div class="profile-setup-banner" id="profileSetupBanner" style="display: none;">
             <div class="profile-setup-content">
@@ -359,4 +375,3 @@
     <div class="toast" id="toast">
         <span id="toastMessage"></span>
     </div>
-
