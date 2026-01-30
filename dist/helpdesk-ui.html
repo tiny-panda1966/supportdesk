@@ -178,6 +178,7 @@ body {
 .bell-ringing svg { animation: bellRing 0.5s ease; }
 
 /* Notification Popup */
+.notification-wrapper { position: relative; }
 .notification-popup {
     position: absolute;
     top: 100%;
@@ -1080,28 +1081,29 @@ body {
                     <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
                     <span class="referral-count" id="referralCount">0</span>
                 </button>
-                <button class="header-action-btn notification-btn" id="notificationBtn" title="Notifications">
-                    <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
-                    <span class="notification-badge hidden" id="notificationBadge">0</span>
-                </button>
-            </div>
-        </header>
-
-        <!-- Notification Popup -->
-        <div class="notification-popup" id="notificationPopup">
-            <div class="notification-popup-header">
-                <h3>Notifications</h3>
-                <div class="notification-popup-actions">
-                    <button class="notification-clear-btn" id="clearAllNotifications">Clear All</button>
-                    <button class="notification-close-btn" id="closeNotificationPopup">
-                        <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                <div class="notification-wrapper">
+                    <button class="header-action-btn notification-btn" id="notificationBtn" title="Notifications">
+                        <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                        <span class="notification-badge hidden" id="notificationBadge">0</span>
                     </button>
+                    <!-- Notification Popup -->
+                    <div class="notification-popup" id="notificationPopup">
+                        <div class="notification-popup-header">
+                            <h3>Notifications</h3>
+                            <div class="notification-popup-actions">
+                                <button class="notification-clear-btn" id="clearAllNotifications">Clear All</button>
+                                <button class="notification-close-btn" id="closeNotificationPopup">
+                                    <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="notification-list" id="notificationList">
+                            <div class="notification-empty">No new notifications</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="notification-list" id="notificationList">
-                <div class="notification-empty">No new notifications</div>
-            </div>
-        </div>
+        </header>
 
         <!-- Profile Setup Banner -->
         <div class="profile-setup-banner" id="profileSetupBanner" style="display: none;">
