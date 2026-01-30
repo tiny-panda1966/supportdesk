@@ -581,6 +581,14 @@ function selectTicket(id) {
         clearNotificationsForTicket(id);
         renderTickets();
         renderTicketDetail(ticket);
+        
+        // Scroll the ticket into view in the list
+        setTimeout(() => {
+            const ticketElement = document.querySelector('.ticket-item[data-id="' + id + '"]');
+            if (ticketElement) {
+                ticketElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }, 50);
     }
 }
 
