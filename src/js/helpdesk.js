@@ -930,7 +930,6 @@ function initEventListeners() {
             state.selectedCategory = card.dataset.category;
             // No longer show custom category input - subject field is sufficient
         });
-        });
     });
 
     // Priority options
