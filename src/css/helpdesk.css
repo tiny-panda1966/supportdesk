@@ -592,18 +592,65 @@ body {
 .status-notes-section .detail-section-title {
     color: #2e7d32;
 }
-.status-notes-content {
+.status-notes-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+.status-note-item {
     background: var(--white);
-    padding: 12px;
+    padding: 10px 12px;
     border-radius: var(--radius-sm);
-    min-height: 40px;
+    margin-bottom: 8px;
+    border-left: 3px solid #4caf50;
+}
+.status-note-item:last-child {
+    margin-bottom: 0;
+}
+.status-note-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+.status-note-date {
+    font-size: 11px;
+    color: var(--grey-500);
+}
+.status-note-delete {
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.5;
+    transition: all 0.2s;
+}
+.status-note-delete:hover {
+    opacity: 1;
+    background: #ffebee;
+}
+.status-note-delete svg {
+    width: 16px;
+    height: 16px;
+    fill: #d32f2f;
+}
+.status-note-content {
     font-size: 14px;
-    line-height: 1.6;
+    line-height: 1.5;
+    color: var(--black);
     white-space: pre-wrap;
 }
-.status-notes-content .no-notes {
+.status-notes-list .no-notes {
+    padding: 20px;
+    text-align: center;
     color: var(--grey-500);
     font-style: italic;
+    background: var(--white);
+    border-radius: var(--radius-sm);
 }
 .internal-notes-input-wrapper {
     display: flex;
@@ -613,7 +660,7 @@ body {
 }
 .internal-notes-textarea {
     width: 100%;
-    min-height: 100px;
+    min-height: 80px;
     padding: 12px;
     border: 1px solid var(--grey-300);
     border-radius: var(--radius-sm);
