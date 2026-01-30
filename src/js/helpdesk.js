@@ -64,6 +64,7 @@ window.addEventListener('message', (event) => {
         case 'referralAdded': showToast('Referral submitted! +' + data.tasksAdded + ' tasks added', 'success'); closeReferralModal(); break;
         case 'ticketTypeUpdated': handleTicketTypeUpdated(data); break;
         case 'projectValueUpdated': handleProjectValueUpdated(data); break;
+        case 'internalNotesUpdated': handleInternalNotesUpdated(data); break;
         case 'realtimeNoteAdded': handleRealtimeNoteAdded(data); break;
         case 'realtimeStatusUpdated': handleRealtimeStatusUpdated(data); break;
         case 'realtimeTicketCreated': handleRealtimeTicketCreated(data); break;
@@ -224,6 +225,17 @@ function handleProjectValueUpdated(data) {
         }
     }
     showToast('Project value updated to £' + data.projectValue, 'success');
+}
+
+function handleInternalNotesUpdated(data) {
+    const ticket = state.tickets.find(t => t._id === data.ticketId);
+    if (ticket) {
+        ticket.internalNotes = data.internalNotes;
+        if (state.selectedTicket && state.selectedTicket._id === data.ticketId) {
+            state.selectedTicket = ticket;
+        }
+    }
+    showToast('Internal notes saved', 'success');
 }
 
 function handleRealtimeNoteAdded(data) {
@@ -478,7 +490,15 @@ function renderTicketDetail(ticket) {
                 ['open', 'in-progress', 'awaiting-response', 'resolved', 'closed'].map(s => '<button class="status-btn ' + (ticket.status === s ? 'active' : '') + '" data-status="' + s + '">' + formatStatus(s) + '</button>').join('') +
             '</div>' + adminTypeSection + '</div>' +
             '<div class="detail-section"><button class="btn btn-danger" onclick="deleteTicket(\'' + ticket._id + '\')">' +
-                '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>Delete Ticket</button></div>' : '') +
+                '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>Delete Ticket</button></div>' +
+            '<div class="detail-section internal-notes-section">' +
+                '<h3 class="detail-section-title">Internal Notes (Admin Only)</h3>' +
+                '<div class="internal-notes-content" id="internalNotesContent">' + (ticket.internalNotes || '<span class="no-notes">No internal notes yet</span>') + '</div>' +
+                '<div class="internal-notes-input-wrapper">' +
+                    '<textarea class="internal-notes-textarea" id="internalNotesInput" placeholder="Add internal notes (only visible to admins)...">' + (ticket.internalNotes || '') + '</textarea>' +
+                    '<button class="btn btn-primary" id="saveInternalNotes" onclick="saveInternalNotes(\'' + ticket._id + '\')">Save Notes</button>' +
+                '</div>' +
+            '</div>' : '') +
         '<div class="notes-section"><h3 class="detail-section-title">Messages</h3>' +
             '<div class="notes-container" id="notesContainer">' + renderNotes(ticket.notes || []) + '</div>' +
             '<div id="pendingAttachmentContainer"></div>' +
@@ -631,6 +651,12 @@ function saveProjectValue(ticketId) {
     const input = document.getElementById('projectValueInput');
     const value = parseFloat(input.value) || 0;
     window.parent.postMessage({ action: 'updateProjectValue', ticketId: ticketId, value: value }, '*');
+}
+
+function saveInternalNotes(ticketId) {
+    const input = document.getElementById('internalNotesInput');
+    const notes = input.value.trim();
+    window.parent.postMessage({ action: 'updateInternalNotes', ticketId: ticketId, internalNotes: notes }, '*');
 }
 
 // ==========================================
