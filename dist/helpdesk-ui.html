@@ -6,7 +6,7 @@
     <title>Support Desk</title>
     <link href="https://fonts.googleapis.com/css2?family=Wix+Madefor+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-       /* Helpdesk Styles - helpdesk-styles.css */
+/* Helpdesk Styles */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
@@ -51,7 +51,6 @@ body {
     min-height: 100vh;
 }
 
-/* Loading Overlay */
 .loading-overlay {
     position: fixed;
     top: 0;
@@ -78,7 +77,6 @@ body {
 
 .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
 
-/* Contract Banner */
 .contract-banner {
     background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
     color: var(--white);
@@ -104,7 +102,6 @@ body {
 .task-number { font-size: 24px; font-weight: 700; }
 .task-label { font-size: 11px; opacity: 0.9; }
 
-/* Header */
 .header {
     display: flex;
     justify-content: space-between;
@@ -135,7 +132,6 @@ body {
 .company-name { font-size: 16px; font-weight: 600; color: var(--accent); }
 .company-logo { max-height: 40px; max-width: 120px; object-fit: contain; }
 
-/* Header Actions */
 .header-actions { display: flex; align-items: center; gap: 12px; }
 .header-action-btn {
     position: relative;
@@ -154,7 +150,6 @@ body {
 .header-action-btn svg { width: 20px; height: 20px; fill: var(--grey-700); }
 .header-action-btn.pacman-btn { background: #ffeb3b; }
 .header-action-btn.pacman-btn:hover { background: #fdd835; }
-.header-action-btn.pacman-btn svg { fill: var(--black); }
 .notification-badge, .referral-count {
     position: absolute;
     top: -4px;
@@ -182,7 +177,6 @@ body {
 }
 .bell-ringing svg { animation: bellRing 0.5s ease; }
 
-/* User Info */
 .user-info { display: flex; align-items: center; gap: 12px; }
 .user-avatar {
     width: 40px;
@@ -199,7 +193,6 @@ body {
 .user-name { font-weight: 600; font-size: 14px; }
 .user-email { font-size: 12px; color: var(--grey-600); }
 
-/* Profile Setup Banner */
 .profile-setup-banner {
     background: var(--accent-light);
     border: 2px solid var(--accent);
@@ -233,13 +226,11 @@ body {
 }
 .profile-input:focus { outline: none; border-color: var(--accent); }
 
-/* Stats Bar */
 .stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
 .stat-card { background: var(--white); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
 .stat-value { font-size: 32px; font-weight: 700; color: var(--accent); }
 .stat-label { font-size: 14px; color: var(--grey-600); margin-top: 4px; }
 
-/* Ticket Type Tabs */
 .ticket-type-tabs {
     display: flex;
     gap: 8px;
@@ -273,7 +264,6 @@ body {
 .ticket-type-count { background: var(--grey-200); padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; }
 .ticket-type-tab.active .ticket-type-count { background: var(--grey-100); }
 
-/* Status Tabs */
 .tabs {
     display: flex;
     gap: 8px;
@@ -298,7 +288,6 @@ body {
 .tab:hover { background: var(--grey-100); color: var(--black); }
 .tab.active { background: var(--accent); color: var(--white); }
 
-/* Main Content */
 .main-content { display: grid; grid-template-columns: 1fr 1.5fr; gap: 24px; }
 .ticket-list-panel, .ticket-detail-panel {
     background: var(--white);
@@ -336,7 +325,6 @@ body {
 }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-/* Buttons */
 .btn {
     padding: 10px 20px;
     border-radius: var(--radius-sm);
@@ -358,7 +346,6 @@ body {
 .btn-danger { background: #f44336; color: var(--white); }
 .btn-danger:hover { background: #d32f2f; }
 
-/* Filters */
 .filters-row {
     padding: 16px 20px;
     border-bottom: 1px solid var(--grey-200);
@@ -396,7 +383,6 @@ body {
 }
 .filter-select:focus { outline: none; border-color: var(--accent); }
 
-/* Ticket List */
 .ticket-list { max-height: 600px; overflow-y: auto; }
 .ticket-item {
     padding: 16px 20px;
@@ -423,14 +409,12 @@ body {
 .priority-dot.high { background: var(--priority-high); }
 .priority-dot.urgent { background: var(--priority-urgent); }
 
-/* Ticket Type Badge */
 .ticket-type-badge { padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; margin-left: 8px; }
 .ticket-type-badge.type-support { background: #e3f2fd; color: var(--type-support); }
 .ticket-type-badge.type-bug { background: #ffebee; color: var(--type-bug); }
 .ticket-type-badge.type-project { background: #f3e5f5; color: var(--type-project); }
 .project-value-display { font-size: 12px; color: var(--type-project); font-weight: 600; margin-top: 4px; }
 
-/* Ticket Detail */
 .ticket-detail-content { padding: 24px; }
 .detail-header { margin-bottom: 24px; }
 .detail-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
@@ -459,7 +443,6 @@ body {
 .detail-info-label { font-size: 12px; color: var(--grey-600); margin-bottom: 4px; }
 .detail-info-value { font-weight: 500; font-size: 14px; }
 
-/* Admin Type Section */
 .admin-type-section {
     margin-top: 16px;
     padding: 16px;
@@ -488,7 +471,6 @@ body {
 .admin-type-btn.active[data-type="bug"] { background: var(--type-bug); border-color: var(--type-bug); }
 .admin-type-btn.active[data-type="project"] { background: var(--type-project); border-color: var(--type-project); }
 
-/* Project Value Section */
 .project-value-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--grey-200); display: none; }
 .project-value-section.visible { display: block; }
 .project-value-label { font-weight: 600; font-size: 13px; margin-bottom: 8px; }
@@ -516,7 +498,6 @@ body {
 }
 .project-value-info { margin-top: 8px; font-size: 12px; color: var(--grey-600); }
 
-/* Status Actions */
 .status-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
 .status-btn {
     padding: 8px 16px;
@@ -532,7 +513,6 @@ body {
 .status-btn:hover { border-color: var(--accent); }
 .status-btn.active { background: var(--accent); color: var(--white); border-color: var(--accent); }
 
-/* Notes Section - WhatsApp Style */
 .notes-section { margin-top: 24px; }
 .notes-container {
     background: #e5ddd5;
@@ -568,7 +548,6 @@ body {
 .note-attachment-doc svg { width: 24px; height: 24px; fill: var(--grey-600); }
 .note-attachment-doc span { font-size: 13px; word-break: break-all; }
 
-/* Note Input */
 .note-input-container { display: flex; gap: 8px; margin-top: 12px; align-items: flex-end; }
 .note-input-wrapper {
     flex: 1;
@@ -623,7 +602,6 @@ body {
 .note-send-btn:hover { background: var(--accent-dark); }
 .note-send-btn svg { width: 22px; height: 22px; fill: var(--white); }
 
-/* Pending Attachment */
 .pending-attachment {
     display: flex;
     align-items: center;
@@ -660,13 +638,11 @@ body {
 }
 .pending-attachment-remove svg { width: 14px; height: 14px; fill: var(--grey-700); }
 
-/* Empty State */
 .empty-state { text-align: center; padding: 60px 20px; color: var(--grey-600); }
 .empty-state svg { width: 80px; height: 80px; fill: var(--grey-300); margin-bottom: 16px; }
 .empty-state h3 { font-size: 18px; margin-bottom: 8px; color: var(--black); }
 .empty-state p { font-size: 14px; }
 
-/* Modal */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -723,7 +699,6 @@ body {
     gap: 12px;
 }
 
-/* Form Elements */
 .form-group { margin-bottom: 20px; }
 .form-label { display: block; font-weight: 500; margin-bottom: 8px; font-size: 14px; }
 .required { color: #f44336; }
@@ -739,7 +714,6 @@ body {
 .form-input:focus, .form-textarea:focus, .form-select:focus { outline: none; border-color: var(--accent); }
 .form-textarea { resize: vertical; min-height: 120px; }
 
-/* Ticket Type Selector (Create Form) */
 .ticket-type-selector { display: flex; gap: 12px; margin-bottom: 24px; }
 .type-option {
     flex: 1;
@@ -759,7 +733,6 @@ body {
 .type-option-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
 .type-option-desc { font-size: 12px; color: var(--grey-600); }
 
-/* Category Grid */
 .category-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .category-card {
     padding: 16px;
@@ -775,7 +748,6 @@ body {
 .category-card.selected svg { fill: var(--accent); }
 .category-card-title { font-size: 13px; font-weight: 500; }
 
-/* Priority/Impact Selectors */
 .priority-selector, .impact-selector { display: flex; gap: 8px; }
 .priority-option, .impact-option {
     flex: 1;
@@ -800,7 +772,6 @@ body {
 .impact-option.selected.major { background: var(--priority-high); border-color: var(--priority-high); }
 .impact-option.selected.critical { background: var(--priority-urgent); border-color: var(--priority-urgent); }
 
-/* Referral Modal */
 .referral-modal {
     position: fixed;
     top: 0;
@@ -878,13 +849,11 @@ body {
 }
 .referral-bonus strong { font-size: 18px; }
 
-/* Access Denied */
 .access-denied { text-align: center; padding: 60px 20px; }
 .access-denied svg { width: 80px; height: 80px; fill: var(--grey-400); margin-bottom: 24px; }
 .access-denied h2 { font-size: 24px; margin-bottom: 12px; color: var(--black); }
 .access-denied p { font-size: 16px; color: var(--grey-600); max-width: 400px; margin: 0 auto; }
 
-/* Toast */
 .toast {
     position: fixed;
     bottom: 24px;
@@ -905,7 +874,6 @@ body {
 .toast.error { background: #f44336; }
 @keyframes slideIn { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-/* Image Modal */
 .image-modal {
     position: fixed;
     top: 0;
@@ -922,7 +890,6 @@ body {
 .image-modal.active { display: flex; }
 .image-modal img { max-width: 90%; max-height: 90%; object-fit: contain; }
 
-/* Responsive */
 @media (max-width: 900px) {
     .main-content { grid-template-columns: 1fr; }
     .ticket-detail-panel { display: none; }
@@ -943,7 +910,6 @@ body {
     .ticket-type-tab { flex: 1 1 45%; }
 }
 
-/* Field validation errors */
 .field-error {
     color: #f44336;
     font-size: 12px;
@@ -959,7 +925,6 @@ body {
     box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.2);
 }
 
-/* Button loader */
 .btn-loader {
     width: 16px;
     height: 16px;
@@ -1345,10 +1310,8 @@ body {
         <span id="toastMessage"></span>
     </div>
 
-
-    <!-- JavaScript -->
     <script>
-        // ==========================================
+// ==========================================
 // HELPDESK UI SCRIPTS - helpdesk-scripts.js
 // ==========================================
 
@@ -1904,14 +1867,28 @@ function saveProjectValue(ticketId) {
 function openModal() {
     document.getElementById('newTicketModal').classList.add('active');
     resetForm();
+    window.scrollTo(0, 0);
+    window.parent.postMessage({ action: 'modalOpened', modal: 'newTicket' }, '*');
 }
 
 function closeModal() {
     document.getElementById('newTicketModal').classList.remove('active');
 }
 
+function closeNewTicketModal() {
+    closeModal();
+    // Clear validation states
+    document.getElementById('ticketSubject').classList.remove('invalid');
+    document.getElementById('ticketDescription').classList.remove('invalid');
+    document.getElementById('subjectError').style.display = 'none';
+    document.getElementById('descriptionError').style.display = 'none';
+    document.getElementById('submitTicket').classList.remove('loading');
+}
+
 function openReferralModal() {
     document.getElementById('referralModal').classList.add('active');
+    window.scrollTo(0, 0);
+    window.parent.postMessage({ action: 'modalOpened', modal: 'referral' }, '*');
 }
 
 function closeReferralModal() {
@@ -1922,6 +1899,8 @@ function closeReferralModal() {
 function openImageModal(url) {
     document.getElementById('imageModalImg').src = url;
     document.getElementById('imageModal').classList.add('active');
+    window.scrollTo(0, 0);
+    window.parent.postMessage({ action: 'modalOpened', modal: 'image' }, '*');
 }
 
 function closeImageModal() {
@@ -2169,36 +2148,13 @@ function showAccessDenied(message) {
     document.getElementById('accessDeniedMessage').textContent = message;
 }
 
-// In openModal() function, add:
-function openModal() {
-    document.getElementById('newTicketModal').classList.add('active');
-    resetForm();
-    window.scrollTo(0, 0);  // Scroll to top
-    window.parent.postMessage({ action: 'modalOpened', modal: 'newTicket' }, '*');
-}
-
-// In openReferralModal() function, add:
-function openReferralModal() {
-    document.getElementById('referralModal').classList.add('active');
-    window.scrollTo(0, 0);  // Scroll to top
-    window.parent.postMessage({ action: 'modalOpened', modal: 'referral' }, '*');
-}
-
-// In openImageModal() function, add:
-function openImageModal(url) {
-    document.getElementById('imageModalImg').src = url;
-    document.getElementById('imageModal').classList.add('active');
-    window.scrollTo(0, 0);  // Scroll to top
-    window.parent.postMessage({ action: 'modalOpened', modal: 'image' }, '*');
-}
-
 // ==========================================
 // EVENT LISTENERS
 // ==========================================
 function initEventListeners() {
     document.getElementById('newTicketBtn').addEventListener('click', openModal);
-    document.getElementById('closeModal').addEventListener('click', closeModal);
-    document.getElementById('cancelTicket').addEventListener('click', closeModal);
+    document.getElementById('closeModal').addEventListener('click', closeNewTicketModal);
+    document.getElementById('cancelTicket').addEventListener('click', closeNewTicketModal);
     document.getElementById('submitTicket').addEventListener('click', submitTicket);
     document.getElementById('pacmanBtn').addEventListener('click', () => window.parent.postMessage({ action: 'pacman' }, '*'));
     document.getElementById('referralBtn').addEventListener('click', openReferralModal);
@@ -2280,7 +2236,6 @@ function initEventListeners() {
             state.selectedCategory = card.dataset.category;
             // No longer show custom category input - subject field is sufficient
         });
-        });
     });
 
     // Priority options
@@ -2303,7 +2258,7 @@ function initEventListeners() {
 
     // Modal close on overlay click
     document.getElementById('newTicketModal').addEventListener('click', (e) => {
-        if (e.target.id === 'newTicketModal') closeModal();
+        if (e.target.id === 'newTicketModal') closeNewTicketModal();
     });
 
     document.getElementById('referralModal').addEventListener('click', (e) => {
