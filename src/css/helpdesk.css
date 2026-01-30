@@ -934,3 +934,40 @@ body {
     .ticket-type-tabs { flex-wrap: wrap; }
     .ticket-type-tab { flex: 1 1 45%; }
 }
+
+/* Field validation errors */
+.field-error {
+    color: #f44336;
+    font-size: 12px;
+    margin-top: 4px;
+    display: none;
+}
+.form-input.invalid, .form-textarea.invalid {
+    border-color: #f44336;
+    background: rgba(244, 67, 54, 0.05);
+}
+.form-input.invalid:focus, .form-textarea.invalid:focus {
+    border-color: #f44336;
+    box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.2);
+}
+
+/* Button loader */
+.btn-loader {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    display: inline-block;
+}
+.btn-primary.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+.btn-primary.loading .btn-text {
+    display: none;
+}
+.btn-primary.loading .btn-loader {
+    display: inline-block !important;
+}
