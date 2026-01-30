@@ -943,6 +943,42 @@ body {
     .ticket-type-tab { flex: 1 1 45%; }
 }
 
+/* Field validation errors */
+.field-error {
+    color: #f44336;
+    font-size: 12px;
+    margin-top: 4px;
+    display: none;
+}
+.form-input.invalid, .form-textarea.invalid {
+    border-color: #f44336;
+    background: rgba(244, 67, 54, 0.05);
+}
+.form-input.invalid:focus, .form-textarea.invalid:focus {
+    border-color: #f44336;
+    box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.2);
+}
+
+/* Button loader */
+.btn-loader {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    display: inline-block;
+}
+.btn-primary.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+.btn-primary.loading .btn-text {
+    display: none;
+}
+.btn-primary.loading .btn-loader {
+    display: inline-block !important;
+}
 
     </style>
 </head>
@@ -1162,14 +1198,14 @@ body {
                             <div class="type-option" data-type="project">
                                 <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4 14h-2v-4H7V9h6V5h2v4h4v4h-4v4z"/></svg>
                                 <div class="type-option-title">New Project</div>
-                                <div class="type-option-desc">Request new development (FREE)</div>
+                                <div class="type-option-desc">Request new development</div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Category (Support only) -->
                     <div class="form-group" id="categoryFormGroup">
-                        <label class="form-label">Category <span class="required">*</span></label>
+                        <label class="form-label">Category</label>
                         <div class="category-grid" id="categoryGrid">
                             <div class="category-card" data-category="other">
                                 <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
@@ -1211,18 +1247,20 @@ body {
                     </div>
 
                     <div class="form-group" id="customCategoryGroup" style="display: none;">
-                        <label class="form-label">Describe the category <span class="required">*</span></label>
+                        <label class="form-label">Describe the category</label>
                         <input type="text" id="customCategory" class="form-input" placeholder="Enter your category">
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Subject <span class="required">*</span></label>
                         <input type="text" id="ticketSubject" class="form-input" placeholder="Brief description of your issue">
+                        <div class="field-error" id="subjectError">Subject is required (min 5 characters)</div>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Description <span class="required">*</span></label>
                         <textarea id="ticketDescription" class="form-textarea" placeholder="Please provide as much detail as possible..."></textarea>
+                        <div class="field-error" id="descriptionError">Description is required (min 10 characters)</div>
                     </div>
 
                     <div class="form-group">
@@ -1249,7 +1287,10 @@ body {
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" id="cancelTicket">Cancel</button>
-                <button class="btn btn-primary" id="submitTicket">Create Ticket</button>
+                <button class="btn btn-primary" id="submitTicket">
+                    <span class="btn-text">Create Ticket</span>
+                    <span class="btn-loader" style="display: none;"></span>
+                </button>
             </div>
         </div>
     </div>
@@ -1444,6 +1485,7 @@ function handleSetReferrals(data) {
 }
 
 function handleTicketCreated(data) {
+    document.getElementById('submitTicket').classList.remove('loading');
     state.tickets.unshift(data.ticket);
     renderTickets();
     updateStats();
@@ -1904,34 +1946,56 @@ function resetForm() {
 
     document.getElementById('customCategoryGroup').style.display = 'none';
     document.getElementById('categoryFormGroup').style.display = 'block';
+    
+    // Clear validation states
+    document.getElementById('ticketSubject').classList.remove('invalid');
+    document.getElementById('ticketDescription').classList.remove('invalid');
+    document.getElementById('subjectError').style.display = 'none';
+    document.getElementById('descriptionError').style.display = 'none';
+    document.getElementById('submitTicket').classList.remove('loading');
 }
 
 function submitTicket() {
     const ticketType = state.selectedTicketType;
     const subject = document.getElementById('ticketSubject').value.trim();
     const description = document.getElementById('ticketDescription').value.trim();
-
-    if (ticketType === 'support' && !state.selectedCategory) {
-        showToast('Please select a category', 'error');
-        return;
-    }
-    if (state.selectedCategory === 'other' && !document.getElementById('customCategory').value.trim()) {
-        showToast('Please describe your category', 'error');
-        return;
-    }
+    const subjectInput = document.getElementById('ticketSubject');
+    const descriptionInput = document.getElementById('ticketDescription');
+    const subjectError = document.getElementById('subjectError');
+    const descriptionError = document.getElementById('descriptionError');
+    const submitBtn = document.getElementById('submitTicket');
+    
+    // Clear previous validation states
+    subjectInput.classList.remove('invalid');
+    descriptionInput.classList.remove('invalid');
+    subjectError.style.display = 'none';
+    descriptionError.style.display = 'none';
+    
+    let hasError = false;
+    
     if (subject.length < 5) {
-        showToast('Subject must be at least 5 characters', 'error');
-        return;
+        subjectInput.classList.add('invalid');
+        subjectError.style.display = 'block';
+        hasError = true;
     }
     if (description.length < 10) {
-        showToast('Description must be at least 10 characters', 'error');
+        descriptionInput.classList.add('invalid');
+        descriptionError.style.display = 'block';
+        hasError = true;
+    }
+    
+    if (hasError) {
+        showToast('Please fill in the required fields', 'error');
         return;
     }
+    
+    // Show loader
+    submitBtn.classList.add('loading');
 
     window.parent.postMessage({
         action: 'createTicket',
         ticketType: ticketType,
-        category: ticketType === 'support' ? state.selectedCategory : ticketType,
+        category: ticketType === 'support' ? (state.selectedCategory || 'general') : ticketType,
         customCategory: document.getElementById('customCategory').value.trim(),
         subject: subject,
         description: description,
@@ -2214,12 +2278,8 @@ function initEventListeners() {
             document.querySelectorAll('.category-card').forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
             state.selectedCategory = card.dataset.category;
-
-            if (card.dataset.category === 'other') {
-                document.getElementById('customCategoryGroup').style.display = 'block';
-            } else {
-                document.getElementById('customCategoryGroup').style.display = 'none';
-            }
+            // No longer show custom category input - subject field is sufficient
+        });
         });
     });
 
@@ -2249,6 +2309,617 @@ function initEventListeners() {
     document.getElementById('referralModal').addEventListener('click', (e) => {
         if (e.target.id === 'referralModal') closeReferralModal();
     });
+}
+
+    </script>
+</body>
+</html>
+
+
+
+// ==========================================
+// HELPDESK WIX BLOCKS WIDGET - COMPLETE
+// File: widgets/helpdesk-widget/widget.js
+// ==========================================
+
+import { 
+    getCurrentUser, 
+    getUserTickets, 
+    getAllTicketsAdmin,
+    createTicket, 
+    addNoteToTicket,
+    updateTicketStatus,
+    deleteTicket,
+    getUserProfile,
+    saveUserProfile,
+    getContractInfo,
+    updateTicketType,
+    updateProjectValue,
+    getReferrals,
+    addReferral
+} from 'backend/helpdesk.web';
+
+import { triggeredEmails } from "@wix/site-crm";
+
+const ADMIN_EMAIL = "<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5e2a373027702e3f303a3f1e2a373027732e3f303a3f703d3133">[email&#160;protected]</a>";
+const ADMIN_MEMBER_ID = "e56a2e68-0414-46ce-a1af-94a142fd5555";
+const NEW_TICKET_EMAIL_ID = "V9F4kdl";
+const UPDATE_TICKET_EMAIL_ID = "V9FFlsI";
+
+let currentDomain = null;
+let currentHtmlComponent = null;
+let currentUser = null;
+let isAdmin = false;
+
+$w.onReady(async () => {
+    console.log("Helpdesk widget ready");
+    
+    const htmlComponent = $w("#helpdeskHtml");
+    
+    htmlComponent.onMessage(async (event) => {
+        console.log("Received message from HTML:", event.data);
+        const data = event.data;
+        
+        switch (data.action) {
+            case 'ready':
+                await initializeHelpdesk(htmlComponent);
+                break;
+            case 'createTicket':
+                await handleCreateTicket(htmlComponent, data);
+                break;
+            case 'addNote':
+                await handleAddNote(htmlComponent, data);
+                break;
+            case 'refreshTickets':
+                await loadTickets(htmlComponent);
+                break;
+            case 'updateStatus':
+                await handleUpdateStatus(htmlComponent, data);
+                break;
+            case 'deleteTicket':
+                await handleDeleteTicket(htmlComponent, data);
+                break;
+            case 'saveProfile':
+                await handleSaveProfile(htmlComponent, data);
+                break;
+            case 'requestUpload':
+                $widget.fireEvent('uploadRequested', {});
+                handleUploadRequest();
+                $w("#boxUploadRoutineInner").scrollTo()
+                break;
+            case 'pacman':
+                $widget.fireEvent('pacman', { text: 'pacman' });
+                console.log("Fired pacman event");
+                break;
+            case 'updateTicketType':
+                await handleUpdateTicketType(htmlComponent, data);
+                break;
+            case 'updateProjectValue':
+                await handleUpdateProjectValue(htmlComponent, data);
+                break;
+            case 'getReferrals':
+                await handleGetReferrals(htmlComponent);
+                break;
+            case 'addReferral':
+                await handleAddReferral(htmlComponent, data);
+                break;
+            case 'refreshContract':
+                await loadContractInfo(htmlComponent);
+                break;
+                // In the switch statement inside handleMessage(), add:
+            case 'modalOpened':
+                // Optional: fire event to page code
+                $widget.fireEvent('modalOpened', { modal: data.modal });
+                break;
+            case 'notificationReceived':
+            $widget.fireEvent('notificationReceived', { 
+                ticketId: data.ticketId, 
+                count: data.totalCount 
+            });
+            break;
+            default:
+                console.log("Unknown action:", data.action);
+        }
+    });
+
+    // File upload handlers
+    $w('#dropdownFileType').onChange(() => {
+        const selectedType = $w('#dropdownFileType').value;
+        if (selectedType) {
+            $w('#uploadButtonNote').fileType = selectedType;
+            $w('#uploadButtonNote').enable();
+        } else {
+            $w('#uploadButtonNote').disable();
+        }
+    });
+
+    $w('#uploadButtonNote').onChange(() => {
+        handleNoteUpload($w("#helpdeskHtml"));
+    });
+
+    $w('#buttonCloseBoxUpload').onClick(() => {
+        $w("#boxUploadRoutine").hide();
+        $w("#boxUploadRoutine").collapse();
+        $w('#dropdownFileType').value = undefined;
+        $w('#uploadButtonNote').disable();
+        $w("#helpdeskHtml").postMessage({ action: 'uploadCancelled' });
+    });
+});
+
+// ==========================================
+// EMAIL NOTIFICATIONS
+// ==========================================
+
+async function sendNewTicketNotification(ticket) {
+    try {
+        await triggeredEmails.emailMember(NEW_TICKET_EMAIL_ID, ADMIN_MEMBER_ID, {
+            variables: {
+                ticketNumber: ticket.ticketNumber || '',
+                userEmail: ticket.userEmail || '',
+                userName: ticket.userName || '',
+                category: ticket.category || '',
+                customCategory: ticket.customCategory || '',
+                subject: ticket.subject || '',
+                description: ticket.description || '',
+                status: ticket.status || 'open',
+                priority: ticket.priority || 'medium',
+                businessImpact: ticket.businessImpact || 'moderate',
+                ticketType: ticket.ticketType || 'support'
+            }
+        });
+        console.log("New ticket notification email sent");
+        return true;
+    } catch (error) {
+        console.error("Error sending new ticket notification:", error);
+        return false;
+    }
+}
+
+async function sendTicketUpdateNotification(ticket, latestNote = '') {
+    try {
+        await triggeredEmails.emailMember(UPDATE_TICKET_EMAIL_ID, ADMIN_MEMBER_ID, {
+            variables: {
+                notes: latestNote,
+                ticketNumber: ticket.ticketNumber || '',
+                userEmail: ticket.userEmail || '',
+                userName: ticket.userName || '',
+                category: ticket.category || '',
+                customCategory: ticket.customCategory || '',
+                subject: ticket.subject || '',
+                description: ticket.description || '',
+                status: ticket.status || 'open',
+                priority: ticket.priority || 'medium',
+                businessImpact: ticket.businessImpact || 'moderate'
+            }
+        });
+        console.log("Ticket update notification email sent");
+        return true;
+    } catch (error) {
+        console.error("Error sending ticket update notification:", error);
+        return false;
+    }
+}
+
+// ==========================================
+// INITIALIZATION
+// ==========================================
+
+async function initializeHelpdesk(htmlComponent) {
+    try {
+        const userResult = await getCurrentUser();
+        
+        if (userResult.success && userResult.user) {
+            currentUser = userResult.user;
+            isAdmin = userResult.user.email && 
+                      userResult.user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+            
+            const profileResult = await getUserProfile();
+            
+            if (!profileResult.authorized && !isAdmin) {
+                htmlComponent.postMessage({
+                    action: 'accessDenied',
+                    message: profileResult.error || "Access denied. Your email is not registered in the system."
+                });
+                return;
+            }
+            
+            currentDomain = profileResult.domain || null;
+            
+            // Convert profile image if exists
+            let profile = null;
+            if (profileResult.success && profileResult.profile) {
+                profile = {
+                    ...profileResult.profile,
+                    image: convertWixUriToHttps(profileResult.profile.image)
+                };
+            }
+            
+            htmlComponent.postMessage({
+                action: 'setUser',
+                user: userResult.user,
+                isAdmin: isAdmin,
+                profile: profile,
+                hasProfile: profileResult.success ? profileResult.hasProfile : false,
+                domain: profileResult.domain || null
+            });
+            
+            await loadTickets(htmlComponent);
+            await loadContractInfo(htmlComponent);
+            await handleGetReferrals(htmlComponent);
+            
+            currentHtmlComponent = htmlComponent;
+            console.log("Helpdesk initialized");
+        } else {
+            htmlComponent.postMessage({
+                action: 'error',
+                message: "Please log in to access the support desk"
+            });
+        }
+    } catch (error) {
+        console.error("Error initializing helpdesk:", error);
+        htmlComponent.postMessage({
+            action: 'error',
+            message: "Failed to initialize support desk"
+        });
+    }
+}
+
+// ==========================================
+// TICKET HANDLERS
+// ==========================================
+
+async function loadTickets(htmlComponent) {
+    try {
+        const result = isAdmin ? await getAllTicketsAdmin() : await getUserTickets();
+        
+        if (result.success) {
+            htmlComponent.postMessage({
+                action: 'setTickets',
+                tickets: result.tickets,
+                users: result.users || [],
+                companies: result.companies || []
+            });
+        } else {
+            htmlComponent.postMessage({ action: 'error', message: result.error || "Failed to load tickets" });
+            htmlComponent.postMessage({ action: 'setTickets', tickets: [], users: [], companies: [] });
+        }
+    } catch (error) {
+        console.error("Error loading tickets:", error);
+        htmlComponent.postMessage({ action: 'error', message: "Failed to load tickets" });
+    }
+}
+
+async function handleCreateTicket(htmlComponent, data) {
+    try {
+        const result = await createTicket({
+            ticketType: data.ticketType || 'support',
+            category: data.category,
+            customCategory: data.customCategory,
+            subject: data.subject,
+            description: data.description,
+            priority: data.priority,
+            businessImpact: data.businessImpact
+        });
+        
+        if (result.success) {
+            sendNewTicketNotification(result.ticket);
+            $widget.fireEvent('ticketCreated', { ticket: result.ticket });
+            htmlComponent.postMessage({
+                action: 'ticketCreated',
+                ticket: result.ticket,
+                tasksDeducted: result.tasksDeducted || 0
+            });
+            if (result.tasksDeducted > 0) await loadContractInfo(htmlComponent);
+        } else {
+            htmlComponent.postMessage({ action: 'error', message: result.error || "Failed to create ticket" });
+        }
+    } catch (error) {
+        console.error("Error creating ticket:", error);
+        htmlComponent.postMessage({ action: 'error', message: "Failed to create ticket" });
+    }
+}
+
+async function handleAddNote(htmlComponent, data) {
+    try {
+        const result = await addNoteToTicket(data.ticketId, data.content || '', data.attachment || null);
+        
+        if (result.success) {
+            if (!isAdmin && data.ticket) {
+                let noteContent = data.content || '';
+                if (data.attachment) noteContent += (noteContent ? '\n' : '') + '[Attachment: ' + (data.attachment.filename || 'file') + ']';
+                sendTicketUpdateNotification(data.ticket, noteContent);
+            }
+            $widget.fireEvent('noteAdded', { ticketId: result.ticketId, note: result.note, domain: result.domain });
+            htmlComponent.postMessage({ action: 'noteAdded', ticketId: result.ticketId, note: result.note });
+        } else {
+            htmlComponent.postMessage({ action: 'error', message: result.error || "Failed to add note" });
+        }
+    } catch (error) {
+        console.error("Error adding note:", error);
+        htmlComponent.postMessage({ action: 'error', message: "Failed to add note" });
+    }
+}
+
+async function handleUpdateStatus(htmlComponent, data) {
+    try {
+        const result = await updateTicketStatus(data.ticketId, data.status);
+        
+        if (result.success) {
+            $widget.fireEvent('statusUpdated', { ticketId: data.ticketId, status: data.status, domain: result.domain });
+            htmlComponent.postMessage({ action: 'statusUpdated', ticketId: data.ticketId, status: data.status });
+        } else {
+            htmlComponent.postMessage({ action: 'error', message: result.error || "Failed to update status" });
+        }
+    } catch (error) {
+        console.error("Error updating status:", error);
+        htmlComponent.postMessage({ action: 'error', message: "Failed to update status" });
+    }
+}
+
+async function handleDeleteTicket(htmlComponent, data) {
+    try {
+        const result = await deleteTicket(data.ticketId);
+        
+        if (result.success) {
+            $widget.fireEvent('ticketDeleted', { ticketId: data.ticketId, domain: result.domain });
+            htmlComponent.postMessage({ action: 'ticketDeleted', ticketId: data.ticketId });
+            await loadContractInfo(htmlComponent);
+        } else {
+            htmlComponent.postMessage({ action: 'error', message: result.error || "Failed to delete ticket" });
+        }
+    } catch (error) {
+        console.error("Error deleting ticket:", error);
+        htmlComponent.postMessage({ action: 'error', message: "Failed to delete ticket" });
+    }
+}
+
+async function handleSaveProfile(htmlComponent, data) {
+    try {
+        const result = await saveUserProfile(data.name, data.companyName);
+        
+        if (result.success) {
+            htmlComponent.postMessage({ action: 'profileSaved', profile: result.profile });
+        } else {
+            htmlComponent.postMessage({ action: 'error', message: result.error || "Failed to save profile" });
+        }
+    } catch (error) {
+        console.error("Error saving profile:", error);
+        htmlComponent.postMessage({ action: 'error', message: "Failed to save profile" });
+    }
+}
+
+// ==========================================
+// TICKET TYPE & PROJECT VALUE HANDLERS
+// ==========================================
+
+async function handleUpdateTicketType(htmlComponent, data) {
+    try {
+        const result = await updateTicketType(data.ticketId, data.ticketType);
+        
+        if (result.success) {
+            $widget.fireEvent('ticketTypeUpdated', {
+                ticketId: data.ticketId,
+                ticketType: result.ticketType,
+                oldType: result.oldType,
+                taskDelta: result.taskDelta,
+                domain: result.domain
+            });
+            htmlComponent.postMessage({
+                action: 'ticketTypeUpdated',
+                ticketId: data.ticketId,
+                ticketType: result.ticketType,
+                oldType: result.oldType,
+                taskDelta: result.taskDelta
+            });
+            await loadContractInfo(htmlComponent);
+        } else {
+            htmlComponent.postMessage({ action: 'error', message: result.error || "Failed to update ticket type" });
+        }
+    } catch (error) {
+        console.error("Error updating ticket type:", error);
+        htmlComponent.postMessage({ action: 'error', message: "Failed to update ticket type" });
+    }
+}
+
+async function handleUpdateProjectValue(htmlComponent, data) {
+    try {
+        const result = await updateProjectValue(data.ticketId, data.value);
+        
+        if (result.success) {
+            $widget.fireEvent('projectValueUpdated', {
+                ticketId: data.ticketId,
+                projectValue: result.projectValue,
+                oldValue: result.oldValue,
+                taskDelta: result.taskDelta,
+                domain: result.domain
+            });
+            htmlComponent.postMessage({
+                action: 'projectValueUpdated',
+                ticketId: data.ticketId,
+                projectValue: result.projectValue,
+                oldValue: result.oldValue,
+                taskDelta: result.taskDelta
+            });
+            await loadContractInfo(htmlComponent);
+        } else {
+            htmlComponent.postMessage({ action: 'error', message: result.error || "Failed to update project value" });
+        }
+    } catch (error) {
+        console.error("Error updating project value:", error);
+        htmlComponent.postMessage({ action: 'error', message: "Failed to update project value" });
+    }
+}
+
+// ==========================================
+// CONTRACT & REFERRAL HANDLERS
+// ==========================================
+
+async function loadContractInfo(htmlComponent) {
+    try {
+        const result = await getContractInfo();
+        htmlComponent.postMessage({ action: 'setContractInfo', contract: result.success ? result.contract : null });
+    } catch (error) {
+        console.error("Error loading contract info:", error);
+    }
+}
+
+async function handleGetReferrals(htmlComponent) {
+    try {
+        const result = await getReferrals();
+        htmlComponent.postMessage({
+            action: 'setReferrals',
+            referrals: result.success ? result.referrals : [],
+            count: result.success ? result.count : 0
+        });
+    } catch (error) {
+        console.error("Error getting referrals:", error);
+        htmlComponent.postMessage({ action: 'setReferrals', referrals: [], count: 0 });
+    }
+}
+
+async function handleAddReferral(htmlComponent, data) {
+    try {
+        const result = await addReferral({
+            companyReferred: data.companyReferred,
+            emailAddress: data.emailAddress,
+            phone: data.phone,
+            comment: data.comment
+        });
+        
+        if (result.success) {
+            htmlComponent.postMessage({ action: 'referralAdded', referral: result.referral, tasksAdded: result.tasksAdded });
+            await handleGetReferrals(htmlComponent);
+            await loadContractInfo(htmlComponent);
+        } else {
+            htmlComponent.postMessage({ action: 'error', message: result.error || "Failed to add referral" });
+        }
+    } catch (error) {
+        console.error("Error adding referral:", error);
+        htmlComponent.postMessage({ action: 'error', message: "Failed to add referral" });
+    }
+}
+
+// ==========================================
+// REALTIME HANDLERS
+// ==========================================
+
+function handleRealtimeMessage(payload) {
+    console.log("Processing realtime payload:", payload);
+    if (!payload || !payload.type || !currentHtmlComponent) return;
+    
+    switch (payload.type) {
+        case 'noteAdded':
+            currentHtmlComponent.postMessage({ action: 'realtimeNoteAdded', ticketId: payload.ticketId, note: payload.note });
+            break;
+        case 'statusUpdated':
+            currentHtmlComponent.postMessage({ action: 'realtimeStatusUpdated', ticketId: payload.ticketId, status: payload.status });
+            break;
+        case 'ticketUpdated':
+            currentHtmlComponent.postMessage({ action: 'realtimeTicketUpdated', ticketId: payload.ticketId });
+            break;
+        case 'ticketCreated':
+            currentHtmlComponent.postMessage({ action: 'realtimeTicketCreated', ticket: payload.ticket });
+            loadContractInfo(currentHtmlComponent);
+            break;
+        case 'ticketDeleted':
+            currentHtmlComponent.postMessage({ action: 'realtimeTicketDeleted', ticketId: payload.ticketId });
+            loadContractInfo(currentHtmlComponent);
+            break;
+        case 'ticketTypeUpdated':
+            currentHtmlComponent.postMessage({ action: 'realtimeTicketTypeUpdated', ticketId: payload.ticketId, ticketType: payload.ticketType });
+            loadContractInfo(currentHtmlComponent);
+            break;
+        case 'projectValueUpdated':
+            currentHtmlComponent.postMessage({ action: 'realtimeProjectValueUpdated', ticketId: payload.ticketId, projectValue: payload.projectValue });
+            loadContractInfo(currentHtmlComponent);
+            break;
+        default:
+            console.log("Unknown realtime message type:", payload.type);
+    }
+}
+
+
+// ==========================================
+// FILE UPLOAD HANDLERS
+// ==========================================
+
+function handleUploadRequest(htmlComponent) {
+    $w("#uploadButtonNote").reset();
+    $w('#dropdownFileType').value = undefined;
+    $w('#uploadButtonNote').disable();
+    $w("#boxUploadRoutine").expand();
+    $w("#boxUploadRoutine").show();
+}
+
+async function handleNoteUpload(htmlComponent) {
+    if ($w("#uploadButtonNote").value.length === 0) return;
+    
+    try { $w("#lottieUploadSpinner").show(); $w("#lottieUploadSpinner").expand(); } catch (e) { /* Spinner element may not exist */ }
+    
+    try {
+        const uploadedFiles = await $w("#uploadButtonNote").uploadFiles();
+        
+        if (uploadedFiles.length > 0) {
+            const uploadedFile = uploadedFiles[0];
+            const httpsUrl = convertWixUriToHttps(uploadedFile.fileUrl);
+            const fileType = detectFileTypeFromName(uploadedFile.originalFileName || "file");
+            
+            htmlComponent.postMessage({
+                action: 'fileUploaded',
+                url: httpsUrl,
+                fileType: fileType,
+                filename: uploadedFile.originalFileName || "file"
+            });
+        }
+    } catch (uploadError) {
+        console.error("Upload failed:", uploadError);
+        htmlComponent.postMessage({ action: 'uploadError', message: uploadError.message || "Upload failed" });
+    } finally {
+        $w("#uploadButtonNote").reset();
+        $w('#dropdownFileType').value = undefined;
+        $w('#uploadButtonNote').disable();
+        $w("#boxUploadRoutine").hide();
+        $w("#boxUploadRoutine").collapse();
+        try { $w("#lottieUploadSpinner").hide(); $w("#lottieUploadSpinner").collapse(); } catch (e) { /* Spinner element may not exist */ }
+    }
+}
+
+function convertWixUriToHttps(wixUri) {
+    if (!wixUri) return null;
+    if (wixUri.startsWith('https://') || wixUri.startsWith('http://')) return wixUri;
+    
+    try {
+        let fileType = 'image';
+        if (wixUri.startsWith('wix:video://')) fileType = 'video';
+        else if (wixUri.startsWith('wix:document://')) fileType = 'document';
+        else if (wixUri.startsWith('wix:audio://')) fileType = 'audio';
+        
+        let mediaPath = wixUri;
+        if (wixUri.includes('://v1/')) mediaPath = wixUri.split('://v1/')[1];
+        mediaPath = mediaPath.split('#')[0];
+        const mediaId = mediaPath.split('/')[0];
+        
+        if (mediaId) {
+            switch (fileType) {
+                case 'video': return `https://video.wixstatic.com/video/${mediaId}/file`;
+                case 'document': return `https://docs.wixstatic.com/ugd/${mediaId}`;
+                case 'audio': return `https://static.wixstatic.com/media/${mediaId}`;
+                default: return `https://static.wixstatic.com/media/${mediaId}`;
+            }
+        }
+    } catch (e) {
+        console.error('Error parsing Wix URI:', e);
+    }
+    return wixUri;
+}
+
+function detectFileTypeFromName(filename) {
+    if (!filename) return 'document';
+    const ext = filename.split('.').pop().toLowerCase();
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(ext)) return 'image';
+    if (['mp4', 'webm', 'mov', 'avi', 'mkv', 'm4v'].includes(ext)) return 'video';
+    if (['mp3', 'wav', 'ogg', 'aac', 'm4a', 'flac', 'wma'].includes(ext)) return 'audio';
+    return 'document';
 }
 
     </script>
