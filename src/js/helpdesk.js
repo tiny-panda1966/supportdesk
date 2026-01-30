@@ -235,6 +235,10 @@ function handleInternalNotesUpdated(data) {
             state.selectedTicket = ticket;
         }
     }
+    // Remove loader
+    const saveBtn = document.getElementById('saveInternalNotes');
+    if (saveBtn) saveBtn.classList.remove('loading');
+    
     showToast('Internal notes saved', 'success');
 }
 
@@ -496,7 +500,10 @@ function renderTicketDetail(ticket) {
                 '<div class="internal-notes-content" id="internalNotesContent">' + (ticket.internalNotes || '<span class="no-notes">No internal notes yet</span>') + '</div>' +
                 '<div class="internal-notes-input-wrapper">' +
                     '<textarea class="internal-notes-textarea" id="internalNotesInput" placeholder="Add internal notes (only visible to admins)...">' + (ticket.internalNotes || '') + '</textarea>' +
-                    '<button class="btn btn-primary" id="saveInternalNotes" onclick="saveInternalNotes(\'' + ticket._id + '\')">Save Notes</button>' +
+                    '<button class="btn btn-primary" id="saveInternalNotes" onclick="saveInternalNotes(\'' + ticket._id + '\')">' +
+                        '<span class="btn-text">Save Notes</span>' +
+                        '<span class="btn-loader" style="display: none;"></span>' +
+                    '</button>' +
                 '</div>' +
             '</div>' : '') +
         '<div class="notes-section"><h3 class="detail-section-title">Messages</h3>' +
@@ -655,7 +662,12 @@ function saveProjectValue(ticketId) {
 
 function saveInternalNotes(ticketId) {
     const input = document.getElementById('internalNotesInput');
+    const saveBtn = document.getElementById('saveInternalNotes');
     const notes = input.value.trim();
+    
+    // Show loader
+    saveBtn.classList.add('loading');
+    
     window.parent.postMessage({ action: 'updateInternalNotes', ticketId: ticketId, internalNotes: notes }, '*');
 }
 
