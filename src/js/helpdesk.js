@@ -1552,30 +1552,3 @@ function detectFileTypeFromName(filename) {
     if (['mp3', 'wav', 'ogg', 'aac', 'm4a', 'flac', 'wma'].includes(ext)) return 'audio';
     return 'document';
 }
-
-/**
- * @function
- * @description Receives realtime updates from the website page code and forwards them to the HTML component for live UI updates
- * @param {Object} data - The realtime update data object
- * @param {string} data.type - The type of realtime event ('realtimeConnected', 'realtimeUpdate')
- * @param {Object} [data.payload] - The payload containing update details (for 'realtimeUpdate' type)
- * @param {string} [data.payload.type] - The payload event type ('noteAdded', 'statusUpdated', 'ticketCreated', 'ticketDeleted', 'ticketTypeUpdated', 'projectValueUpdated')
- * @param {string} [data.payload.ticketId] - The ticket ID affected by the update
- * @returns {void}
- * See http://wix.to/VaEzgUn for more information on widget API functions
- */
-export function receiveRealtimeUpdate(data){
-     console.log("Widget received realtime update from website:", data);
-    if (!data || !data.type) return;
-    
-    if (data.type === 'realtimeConnected') {
-        if (currentHtmlComponent) {
-            currentHtmlComponent.postMessage({ action: 'showLiveIndicator', show: true });
-        }
-        return;
-    }
-    
-    if (data.type === 'realtimeUpdate' && data.payload) {
-        handleRealtimeMessage(data.payload);
-    }
-}
