@@ -1,4 +1,4 @@
-        // ==========================================
+// ==========================================
 // HELPDESK UI SCRIPTS - helpdesk-scripts.js
 // ==========================================
 
@@ -29,7 +29,8 @@ const state = {
     referrals: [],
     referralCount: 0,
     notificationCount: 0,
-    unreadNotes: {}
+    unreadNotes: {},
+    notifications: []
 };
 
 // ==========================================
@@ -236,7 +237,7 @@ function handleRealtimeNoteAdded(data) {
                 state.selectedTicket = ticket;
                 renderTicketDetail(ticket);
             } else {
-                incrementNotifications(data.ticketId);
+                incrementNotifications(data.ticketId, data.note);
             }
         }
     }
@@ -262,10 +263,25 @@ function handleRealtimeTicketDeleted(data) {
 // ==========================================
 // NOTIFICATIONS
 // ==========================================
-function incrementNotifications(ticketId) {
+function incrementNotifications(ticketId, noteData) {
     if (!state.unreadNotes[ticketId]) state.unreadNotes[ticketId] = 0;
     state.unreadNotes[ticketId]++;
+    
+    // Find ticket info
+    const ticket = state.tickets.find(t => t._id === ticketId);
+    
+    // Add to notifications array
+    state.notifications.unshift({
+        ticketId: ticketId,
+        ticketNumber: ticket ? ticket.ticketNumber : 'Unknown',
+        ticketSubject: ticket ? ticket.subject : 'Unknown Ticket',
+        author: noteData ? noteData.author : 'Support Team',
+        message: noteData ? (noteData.content || 'Sent an attachment') : 'New message',
+        date: new Date().toISOString()
+    });
+    
     updateNotificationBadge();
+    renderNotificationPopup();
     playNotificationSound();
     document.getElementById('notificationBtn').classList.add('bell-ringing');
     setTimeout(() => document.getElementById('notificationBtn').classList.remove('bell-ringing'), 500);
@@ -289,8 +305,63 @@ function updateNotificationBadge() {
 function clearNotificationsForTicket(ticketId) {
     if (state.unreadNotes[ticketId]) {
         delete state.unreadNotes[ticketId];
+        // Remove notifications for this ticket
+        state.notifications = state.notifications.filter(n => n.ticketId !== ticketId);
         updateNotificationBadge();
+        renderNotificationPopup();
     }
+}
+
+function toggleNotificationPopup() {
+    const popup = document.getElementById('notificationPopup');
+    popup.classList.toggle('active');
+}
+
+function closeNotificationPopup() {
+    document.getElementById('notificationPopup').classList.remove('active');
+}
+
+function renderNotificationPopup() {
+    const container = document.getElementById('notificationList');
+    if (!container) return;
+    
+    if (state.notifications.length === 0) {
+        container.innerHTML = '<div class="notification-empty">No new notifications</div>';
+        return;
+    }
+    
+    container.innerHTML = state.notifications.map((notif, index) => 
+        '<div class="notification-item" data-ticket-id="' + notif.ticketId + '" data-index="' + index + '">' +
+            '<div class="notification-item-header">' +
+                '<span class="notification-ticket">#' + formatTicketNumber(notif.ticketNumber) + '</span>' +
+                '<span class="notification-time">' + formatFullDateTime(notif.date) + '</span>' +
+            '</div>' +
+            '<div class="notification-subject">' + notif.ticketSubject + '</div>' +
+            '<div class="notification-message"><strong>' + notif.author + ':</strong> ' + truncateText(notif.message, 50) + '</div>' +
+        '</div>'
+    ).join('');
+    
+    // Add click handlers
+    container.querySelectorAll('.notification-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const ticketId = item.dataset.ticketId;
+            selectTicket(ticketId);
+            closeNotificationPopup();
+        });
+    });
+}
+
+function truncateText(text, maxLength) {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+}
+
+function clearAllNotifications() {
+    state.notifications = [];
+    state.unreadNotes = {};
+    updateNotificationBadge();
+    renderNotificationPopup();
 }
 
 function playNotificationSound() {
@@ -332,7 +403,10 @@ function renderTickets() {
         const unread = state.unreadNotes[ticket._id] || 0;
         return '<div class="ticket-item ' + (state.selectedTicket && state.selectedTicket._id === ticket._id ? 'active' : '') + '" data-id="' + ticket._id + '">' +
             '<div class="ticket-item-header">' +
-                '<span class="ticket-number">' + ticket.ticketNumber + (unread > 0 ? ' <span style="color:#f44336;font-weight:bold;">(' + unread + ' new)</span>' : '') + '</span>' +
+                '<div class="ticket-number-block">' +
+                    '<span class="ticket-number">#' + formatTicketNumber(ticket.ticketNumber) + (unread > 0 ? ' <span style="color:#f44336;font-weight:bold;">(' + unread + ' new)</span>' : '') + '</span>' +
+                    '<span class="ticket-datetime">' + formatFullDateTime(ticket._createdDate) + '</span>' +
+                '</div>' +
                 '<span class="ticket-status ' + ticket.status + '">' + formatStatus(ticket.status) + '</span>' +
             '</div>' +
             '<div class="ticket-subject">' + ticket.subject + '<span class="ticket-type-badge type-' + ticketType + '">' + typeLabel + '</span></div>' +
@@ -388,7 +462,7 @@ function renderTicketDetail(ticket) {
         '<div class="detail-section"><h3 class="detail-section-title">Description</h3><div class="detail-description">' + ticket.description + '</div></div>' +
         '<div class="detail-section"><h3 class="detail-section-title">Details</h3>' +
             '<div class="detail-info-grid">' +
-                '<div class="detail-info-item"><div class="detail-info-label">Ticket Number</div><div class="detail-info-value">' + ticket.ticketNumber + '</div></div>' +
+                '<div class="detail-info-item"><div class="detail-info-label">Ticket Number</div><div class="detail-info-value">#' + formatTicketNumber(ticket.ticketNumber) + '</div></div>' +
                 '<div class="detail-info-item"><div class="detail-info-label">Status</div><div class="detail-info-value"><span class="ticket-status ' + ticket.status + '">' + formatStatus(ticket.status) + '</span></div></div>' +
                 '<div class="detail-info-item"><div class="detail-info-label">Priority</div><div class="detail-info-value"><span class="ticket-priority"><span class="priority-dot ' + ticket.priority + '"></span> ' + ticket.priority.charAt(0).toUpperCase() + ticket.priority.slice(1) + '</span></div></div>' +
                 '<div class="detail-info-item"><div class="detail-info-label">Category</div><div class="detail-info-value">' + (ticket.customCategory || formatCategory(ticket.category)) + '</div></div>' +
@@ -554,14 +628,28 @@ function saveProjectValue(ticketId) {
 function openModal() {
     document.getElementById('newTicketModal').classList.add('active');
     resetForm();
+    window.scrollTo(0, 0);
+    window.parent.postMessage({ action: 'modalOpened', modal: 'newTicket' }, '*');
 }
 
 function closeModal() {
     document.getElementById('newTicketModal').classList.remove('active');
 }
 
+function closeNewTicketModal() {
+    closeModal();
+    // Clear validation states
+    document.getElementById('ticketSubject').classList.remove('invalid');
+    document.getElementById('ticketDescription').classList.remove('invalid');
+    document.getElementById('subjectError').style.display = 'none';
+    document.getElementById('descriptionError').style.display = 'none';
+    document.getElementById('submitTicket').classList.remove('loading');
+}
+
 function openReferralModal() {
     document.getElementById('referralModal').classList.add('active');
+    window.scrollTo(0, 0);
+    window.parent.postMessage({ action: 'modalOpened', modal: 'referral' }, '*');
 }
 
 function closeReferralModal() {
@@ -572,6 +660,8 @@ function closeReferralModal() {
 function openImageModal(url) {
     document.getElementById('imageModalImg').src = url;
     document.getElementById('imageModal').classList.add('active');
+    window.scrollTo(0, 0);
+    window.parent.postMessage({ action: 'modalOpened', modal: 'image' }, '*');
 }
 
 function closeImageModal() {
@@ -800,6 +890,26 @@ function formatCategory(category) {
     return map[category] || category;
 }
 
+function formatTicketNumber(num) {
+    const str = String(num).replace(/[^0-9]/g, '');
+    if (str.length > 3) {
+        return str.slice(0, 3) + '-' + str.slice(3);
+    }
+    return str;
+}
+
+function formatFullDateTime(date) {
+    if (!date) return '';
+    const d = new Date(date);
+    const day = d.getDate();
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[d.getMonth()];
+    const year = d.getFullYear();
+    const hours = d.getHours().toString().padStart(2, '0');
+    const mins = d.getMinutes().toString().padStart(2, '0');
+    return day + ' ' + month + ' ' + year + ', ' + hours + ':' + mins;
+}
+
 function showToast(message, type) {
     type = type || 'success';
     const toast = document.getElementById('toast');
@@ -819,42 +929,24 @@ function showAccessDenied(message) {
     document.getElementById('accessDeniedMessage').textContent = message;
 }
 
-// In openModal() function, add:
-function openModal() {
-    document.getElementById('newTicketModal').classList.add('active');
-    resetForm();
-    window.scrollTo(0, 0);  // Scroll to top
-    window.parent.postMessage({ action: 'modalOpened', modal: 'newTicket' }, '*');
-}
-
-// In openReferralModal() function, add:
-function openReferralModal() {
-    document.getElementById('referralModal').classList.add('active');
-    window.scrollTo(0, 0);  // Scroll to top
-    window.parent.postMessage({ action: 'modalOpened', modal: 'referral' }, '*');
-}
-
-// In openImageModal() function, add:
-function openImageModal(url) {
-    document.getElementById('imageModalImg').src = url;
-    document.getElementById('imageModal').classList.add('active');
-    window.scrollTo(0, 0);  // Scroll to top
-    window.parent.postMessage({ action: 'modalOpened', modal: 'image' }, '*');
-}
-
 // ==========================================
 // EVENT LISTENERS
 // ==========================================
 function initEventListeners() {
     document.getElementById('newTicketBtn').addEventListener('click', openModal);
-    document.getElementById('closeModal').addEventListener('click', closeModal);
-    document.getElementById('cancelTicket').addEventListener('click', closeModal);
+    document.getElementById('closeModal').addEventListener('click', closeNewTicketModal);
+    document.getElementById('cancelTicket').addEventListener('click', closeNewTicketModal);
     document.getElementById('submitTicket').addEventListener('click', submitTicket);
     document.getElementById('pacmanBtn').addEventListener('click', () => window.parent.postMessage({ action: 'pacman' }, '*'));
     document.getElementById('referralBtn').addEventListener('click', openReferralModal);
     document.getElementById('closeReferralModal').addEventListener('click', closeReferralModal);
     document.getElementById('referralForm').addEventListener('submit', submitReferral);
     document.getElementById('imageModal').addEventListener('click', closeImageModal);
+    
+    // Notification popup
+    document.getElementById('notificationBtn').addEventListener('click', toggleNotificationPopup);
+    document.getElementById('closeNotificationPopup').addEventListener('click', closeNotificationPopup);
+    document.getElementById('clearAllNotifications').addEventListener('click', clearAllNotifications);
 
     document.getElementById('saveProfileBtn').addEventListener('click', () => {
         const name = document.getElementById('profileNameInput').value.trim();
@@ -952,14 +1044,10 @@ function initEventListeners() {
 
     // Modal close on overlay click
     document.getElementById('newTicketModal').addEventListener('click', (e) => {
-        if (e.target.id === 'newTicketModal') closeModal();
+        if (e.target.id === 'newTicketModal') closeNewTicketModal();
     });
 
     document.getElementById('referralModal').addEventListener('click', (e) => {
         if (e.target.id === 'referralModal') closeReferralModal();
     });
 }
-
-    </script>
-</body>
-</html>
