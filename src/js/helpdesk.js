@@ -65,6 +65,7 @@ window.addEventListener('message', (event) => {
         case 'ticketTypeUpdated': handleTicketTypeUpdated(data); break;
         case 'projectValueUpdated': handleProjectValueUpdated(data); break;
         case 'internalNotesUpdated': handleInternalNotesUpdated(data); break;
+        case 'statusNoteDeleted': handleStatusNoteDeleted(data); break;
         case 'realtimeNoteAdded': handleRealtimeNoteAdded(data); break;
         case 'realtimeStatusUpdated': handleRealtimeStatusUpdated(data); break;
         case 'realtimeTicketCreated': handleRealtimeTicketCreated(data); break;
@@ -233,13 +234,35 @@ function handleInternalNotesUpdated(data) {
         ticket.internalNotes = data.internalNotes;
         if (state.selectedTicket && state.selectedTicket._id === data.ticketId) {
             state.selectedTicket = ticket;
+            // Re-render the status notes list
+            const notesList = document.getElementById('statusNotesList');
+            if (notesList) {
+                notesList.innerHTML = renderStatusNotes(data.internalNotes, state.isAdmin);
+            }
         }
     }
-    // Remove loader
+    // Remove loader and clear input
     const saveBtn = document.getElementById('saveInternalNotes');
     if (saveBtn) saveBtn.classList.remove('loading');
+    const input = document.getElementById('internalNotesInput');
+    if (input) input.value = '';
     
-    showToast('Internal notes saved', 'success');
+    showToast('Status note saved', 'success');
+}
+
+function handleStatusNoteDeleted(data) {
+    const ticket = state.tickets.find(t => t._id === data.ticketId);
+    if (ticket) {
+        ticket.internalNotes = data.internalNotes;
+        if (state.selectedTicket && state.selectedTicket._id === data.ticketId) {
+            state.selectedTicket = ticket;
+            const notesList = document.getElementById('statusNotesList');
+            if (notesList) {
+                notesList.innerHTML = renderStatusNotes(data.internalNotes, state.isAdmin);
+            }
+        }
+    }
+    showToast('Status note deleted', 'success');
 }
 
 function handleRealtimeNoteAdded(data) {
@@ -497,11 +520,11 @@ function renderTicketDetail(ticket) {
                 '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>Delete Ticket</button></div>' : '') +
         '<div class="detail-section status-notes-section">' +
             '<h3 class="detail-section-title">Status Notes</h3>' +
-            '<div class="status-notes-content" id="internalNotesContent">' + (ticket.internalNotes || '<span class="no-notes">No status notes yet</span>') + '</div>' +
+            '<div class="status-notes-list" id="statusNotesList">' + renderStatusNotes(ticket.internalNotes, state.isAdmin) + '</div>' +
             (state.isAdmin ? '<div class="internal-notes-input-wrapper">' +
-                '<textarea class="internal-notes-textarea" id="internalNotesInput" placeholder="Add status notes visible to customer...">' + (ticket.internalNotes || '') + '</textarea>' +
-                '<button class="btn btn-primary" id="saveInternalNotes" onclick="saveInternalNotes(\'' + ticket._id + '\')">' +
-                    '<span class="btn-text">Save Notes</span>' +
+                '<textarea class="internal-notes-textarea" id="internalNotesInput" placeholder="Add a new status note..."></textarea>' +
+                '<button class="btn btn-primary" id="saveInternalNotes" onclick="addStatusNote(\'' + ticket._id + '\')">' +
+                    '<span class="btn-text">Add Note</span>' +
                     '<span class="btn-loader" style="display: none;"></span>' +
                 '</button>' +
             '</div>' : '') +
@@ -660,15 +683,53 @@ function saveProjectValue(ticketId) {
     window.parent.postMessage({ action: 'updateProjectValue', ticketId: ticketId, value: value }, '*');
 }
 
-function saveInternalNotes(ticketId) {
+function addStatusNote(ticketId) {
     const input = document.getElementById('internalNotesInput');
     const saveBtn = document.getElementById('saveInternalNotes');
-    const notes = input.value.trim();
+    const content = input.value.trim();
+    
+    if (!content) {
+        showToast('Please enter a note', 'error');
+        return;
+    }
     
     // Show loader
     saveBtn.classList.add('loading');
     
-    window.parent.postMessage({ action: 'updateInternalNotes', ticketId: ticketId, internalNotes: notes }, '*');
+    window.parent.postMessage({ action: 'addStatusNote', ticketId: ticketId, content: content }, '*');
+}
+
+function deleteStatusNote(ticketId, noteId) {
+    if (!confirm('Delete this status note?')) return;
+    window.parent.postMessage({ action: 'deleteStatusNote', ticketId: ticketId, noteId: noteId }, '*');
+}
+
+function renderStatusNotes(notesData, isAdmin) {
+    let notes = [];
+    if (notesData) {
+        try {
+            notes = typeof notesData === 'string' ? JSON.parse(notesData) : notesData;
+            if (!Array.isArray(notes)) notes = [];
+        } catch (e) {
+            notes = [];
+        }
+    }
+    
+    if (notes.length === 0) {
+        return '<div class="no-notes">No status notes yet</div>';
+    }
+    
+    return notes.map(note => 
+        '<div class="status-note-item" data-note-id="' + note.id + '">' +
+            '<div class="status-note-header">' +
+                '<span class="status-note-date">' + formatFullDateTime(note.date) + '</span>' +
+                (isAdmin ? '<button class="status-note-delete" onclick="deleteStatusNote(\'' + state.selectedTicket._id + '\', \'' + note.id + '\')" title="Delete note">' +
+                    '<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>' +
+                '</button>' : '') +
+            '</div>' +
+            '<div class="status-note-content">' + note.content + '</div>' +
+        '</div>'
+    ).join('');
 }
 
 // ==========================================
