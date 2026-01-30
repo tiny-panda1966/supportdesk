@@ -1706,7 +1706,7 @@ function renderTicketDetail(ticket) {
         '<div class="detail-section"><h3 class="detail-section-title">Description</h3><div class="detail-description">' + ticket.description + '</div></div>' +
         '<div class="detail-section"><h3 class="detail-section-title">Details</h3>' +
             '<div class="detail-info-grid">' +
-                '<div class="detail-info-item"><div class="detail-info-label">Ticket Number</div><div class="detail-info-value">' + ticket.ticketNumber + '</div></div>' +
+                '<div class="detail-info-item"><div class="detail-info-label">Ticket Number</div><div class="detail-info-value">#' + formatTicketNumber(ticket.ticketNumber) + '</div></div>' +
                 '<div class="detail-info-item"><div class="detail-info-label">Status</div><div class="detail-info-value"><span class="ticket-status ' + ticket.status + '">' + formatStatus(ticket.status) + '</span></div></div>' +
                 '<div class="detail-info-item"><div class="detail-info-label">Priority</div><div class="detail-info-value"><span class="ticket-priority"><span class="priority-dot ' + ticket.priority + '"></span> ' + ticket.priority.charAt(0).toUpperCase() + ticket.priority.slice(1) + '</span></div></div>' +
                 '<div class="detail-info-item"><div class="detail-info-label">Category</div><div class="detail-info-value">' + (ticket.customCategory || formatCategory(ticket.category)) + '</div></div>' +
