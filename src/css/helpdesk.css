@@ -567,6 +567,54 @@ body {
 }
 .project-value-info { margin-top: 8px; font-size: 12px; color: var(--grey-600); }
 
+/* Internal Notes Section */
+.internal-notes-section {
+    background: #fff8e1;
+    border: 1px solid #ffe082;
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-top: 16px;
+}
+.internal-notes-section .detail-section-title {
+    color: #f57c00;
+}
+.internal-notes-content {
+    background: var(--white);
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 12px;
+    min-height: 60px;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+.internal-notes-content .no-notes {
+    color: var(--grey-500);
+    font-style: italic;
+}
+.internal-notes-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.internal-notes-textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 12px;
+    border: 1px solid var(--grey-300);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+}
+.internal-notes-textarea:focus {
+    outline: none;
+    border-color: #f57c00;
+}
+.internal-notes-input-wrapper .btn {
+    align-self: flex-end;
+}
+
 .status-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
 .status-btn {
     padding: 8px 16px;
