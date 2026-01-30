@@ -494,18 +494,18 @@ function renderTicketDetail(ticket) {
                 ['open', 'in-progress', 'awaiting-response', 'resolved', 'closed'].map(s => '<button class="status-btn ' + (ticket.status === s ? 'active' : '') + '" data-status="' + s + '">' + formatStatus(s) + '</button>').join('') +
             '</div>' + adminTypeSection + '</div>' +
             '<div class="detail-section"><button class="btn btn-danger" onclick="deleteTicket(\'' + ticket._id + '\')">' +
-                '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>Delete Ticket</button></div>' +
-            '<div class="detail-section internal-notes-section">' +
-                '<h3 class="detail-section-title">Internal Notes (Admin Only)</h3>' +
-                '<div class="internal-notes-content" id="internalNotesContent">' + (ticket.internalNotes || '<span class="no-notes">No internal notes yet</span>') + '</div>' +
-                '<div class="internal-notes-input-wrapper">' +
-                    '<textarea class="internal-notes-textarea" id="internalNotesInput" placeholder="Add internal notes (only visible to admins)...">' + (ticket.internalNotes || '') + '</textarea>' +
-                    '<button class="btn btn-primary" id="saveInternalNotes" onclick="saveInternalNotes(\'' + ticket._id + '\')">' +
-                        '<span class="btn-text">Save Notes</span>' +
-                        '<span class="btn-loader" style="display: none;"></span>' +
-                    '</button>' +
-                '</div>' +
+                '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>Delete Ticket</button></div>' : '') +
+        '<div class="detail-section status-notes-section">' +
+            '<h3 class="detail-section-title">Status Notes</h3>' +
+            '<div class="status-notes-content" id="internalNotesContent">' + (ticket.internalNotes || '<span class="no-notes">No status notes yet</span>') + '</div>' +
+            (state.isAdmin ? '<div class="internal-notes-input-wrapper">' +
+                '<textarea class="internal-notes-textarea" id="internalNotesInput" placeholder="Add status notes visible to customer...">' + (ticket.internalNotes || '') + '</textarea>' +
+                '<button class="btn btn-primary" id="saveInternalNotes" onclick="saveInternalNotes(\'' + ticket._id + '\')">' +
+                    '<span class="btn-text">Save Notes</span>' +
+                    '<span class="btn-loader" style="display: none;"></span>' +
+                '</button>' +
             '</div>' : '') +
+        '</div>' +
         '<div class="notes-section"><h3 class="detail-section-title">Messages</h3>' +
             '<div class="notes-container" id="notesContainer">' + renderNotes(ticket.notes || []) + '</div>' +
             '<div id="pendingAttachmentContainer"></div>' +
