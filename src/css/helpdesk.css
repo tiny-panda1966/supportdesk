@@ -170,6 +170,7 @@ body {
 .bell-ringing svg { animation: bellRing 0.5s ease; }
 
 /* Notification Popup */
+.notification-wrapper { position: relative; }
 .notification-popup {
     position: absolute;
     top: 100%;
