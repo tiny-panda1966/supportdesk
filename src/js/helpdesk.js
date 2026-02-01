@@ -1307,6 +1307,18 @@ function initEventListeners() {
             document.querySelectorAll('.ticket-type-tab').forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
             state.currentTypeFilter = tab.dataset.type;
+            
+            // Reset status filter to All Tickets
+            state.currentStatusFilter = 'all';
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            var allTab = document.querySelector('.tab[data-tab="all"]');
+            if (allTab) allTab.classList.add('active');
+            
+            // Reset priority filter to All Priorities
+            state.priorityFilter = '';
+            var prioritySelect = document.getElementById('priorityFilter');
+            if (prioritySelect) prioritySelect.value = '';
+            
             renderTickets();
         });
     });
