@@ -2719,7 +2719,7 @@ function renderNotes(notes) {
                 '</div></div>';
             } else if (mediaType === 'audio') {
                 attachmentHtml = '<div class="note-attachment"><div class="media-player audio-player" id="' + pid + '">' +
-                    '<audio preload="metadata"><source src="' + att.url + '"></audio>' +
+                    '<audio preload="auto" src="' + att.url + '"></audio>' +
                     '<div class="media-controls">' +
                         '<button class="media-btn play-btn" onclick="toggleMediaPlay(\'' + pid + '\')">' +
                             '<svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>' +
@@ -3061,9 +3061,28 @@ function toggleMediaPlay(playerId) {
                 }
             }
         });
-        media.play();
-        player.classList.add('playing');
         startProgressUpdate(playerId);
+        var playPromise = media.play();
+        if (playPromise !== undefined) {
+            playPromise.then(function() {
+                player.classList.add('playing');
+            }).catch(function(err) {
+                console.error('Playback failed:', err);
+                player.classList.remove('playing');
+                // Try loading and playing again
+                media.load();
+                media.addEventListener('canplay', function retryPlay() {
+                    media.removeEventListener('canplay', retryPlay);
+                    media.play().then(function() {
+                        player.classList.add('playing');
+                    }).catch(function() {
+                        console.error('Retry playback also failed');
+                    });
+                });
+            });
+        } else {
+            player.classList.add('playing');
+        }
     } else {
         media.pause();
         player.classList.remove('playing');
@@ -3106,7 +3125,6 @@ function startProgressUpdate(playerId) {
     var media = getMediaElement(playerId);
     if (!media) return;
     
-    // Remove existing listeners to avoid duplicates
     media.onended = function() {
         var player = document.getElementById(playerId);
         if (player) player.classList.remove('playing');
@@ -3115,6 +3133,13 @@ function startProgressUpdate(playerId) {
     };
     media.ontimeupdate = function() { updateProgress(playerId); };
     media.onloadedmetadata = function() { updateProgress(playerId); };
+    media.onerror = function(e) {
+        console.error('Media error for ' + playerId + ':', media.error);
+        var player = document.getElementById(playerId);
+        var timeEl = player ? player.querySelector('.media-time') : null;
+        if (timeEl) timeEl.textContent = 'Error';
+        if (player) player.classList.remove('playing');
+    };
 }
 
 function toggleMute(playerId) {
