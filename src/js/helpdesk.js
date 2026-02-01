@@ -126,7 +126,30 @@ function handleContractInfo(contract) {
         document.getElementById('contractName').textContent = contract.contractName || '-';
         document.getElementById('baseTasks').textContent = contract.baseTasks || 0;
         document.getElementById('adjustedTasks').textContent = contract.adjustedTasks || 0;
+        
+        // Monthly usage display
+        var tasksPerMonth = contract.tasksPerMonth || 0;
+        var usedThisMonth = contract.usedThisMonth || 0;
+        document.getElementById('usedThisMonth').textContent = usedThisMonth;
+        document.getElementById('monthlyLimit').textContent = tasksPerMonth;
+        
+        var pct = tasksPerMonth > 0 ? Math.min((usedThisMonth / tasksPerMonth) * 100, 100) : 0;
+        var fill = document.getElementById('monthlyProgressFill');
+        fill.style.width = pct + '%';
+        fill.className = 'monthly-progress-fill';
+        if (pct >= 100) fill.classList.add('danger');
+        else if (pct >= 80) fill.classList.add('warning');
+        
+        // Show/hide monthly bar
+        document.getElementById('contractMonthly').style.display = tasksPerMonth > 0 ? 'flex' : 'none';
+        
         banner.classList.add('visible');
+        
+        // Check if no tasks remaining — show warning if present
+        var warningEl = document.getElementById('noTasksWarning');
+        if (warningEl) {
+            warningEl.style.display = (contract.adjustedTasks <= 0) ? 'flex' : 'none';
+        }
     } else {
         banner.classList.remove('visible');
     }
@@ -224,13 +247,16 @@ function handleProjectValueUpdated(data) {
     const ticket = state.tickets.find(t => t._id === data.ticketId);
     if (ticket) {
         ticket.projectValue = data.projectValue;
+        if (data.purchaseOrderReceived !== undefined) {
+            ticket.purchaseOrderReceived = data.purchaseOrderReceived;
+        }
         renderTickets();
         if (state.selectedTicket && state.selectedTicket._id === data.ticketId) {
             state.selectedTicket = ticket;
             renderTicketDetail(ticket);
         }
     }
-    showToast('Project value updated to £' + data.projectValue, 'success');
+    showToast('Project value updated to £' + data.projectValue + (data.purchaseOrderReceived ? ' (PO received)' : ''), 'success');
 }
 
 function handleInternalNotesUpdated(data) {
@@ -491,9 +517,13 @@ function renderTicketDetail(ticket) {
                 '<div class="project-value-input-wrapper">' +
                     '<span class="project-value-prefix">£</span>' +
                     '<input type="number" class="project-value-input" id="projectValueInput" value="' + (ticket.projectValue || 0) + '" min="0" step="100">' +
-                    '<button class="project-value-save-btn" onclick="saveProjectValue(\'' + ticket._id + '\')">Save</button>' +
                 '</div>' +
-                (ticketType === 'referral' ? '<div class="project-value-info">Every £1,000 = 1 extra task (capped at £5,000 = 5 tasks)</div>' : '<div class="project-value-info">Every £1,000 = 5 extra tasks</div>') +
+                '<label class="po-checkbox-wrapper">' +
+                    '<input type="checkbox" class="po-checkbox" id="poReceivedCheckbox" ' + (ticket.purchaseOrderReceived ? 'checked' : '') + '>' +
+                    '<span class="po-checkbox-text">Purchase Order Received</span>' +
+                '</label>' +
+                '<button class="project-value-save-btn project-value-save-full" onclick="saveProjectValue(\'' + ticket._id + '\')">Save</button>' +
+                (ticketType === 'referral' ? '<div class="project-value-info">Every £1,000 = 1 extra task (capped at £5,000). Tasks allocated when PO received.</div>' : '<div class="project-value-info">Every £1,000 = 5 extra tasks. Tasks allocated when PO received.</div>') +
             '</div>' +
         '</div>';
     }
@@ -518,6 +548,7 @@ function renderTicketDetail(ticket) {
                 '<div class="detail-info-item"><div class="detail-info-label">Business Impact</div><div class="detail-info-value">' + ((ticket.businessImpact || 'moderate').charAt(0).toUpperCase() + (ticket.businessImpact || 'moderate').slice(1)) + '</div></div>' +
                 (ticketType === 'project' && ticket.projectValue ? '<div class="detail-info-item"><div class="detail-info-label">Project Value</div><div class="detail-info-value" style="color:var(--type-project);font-weight:600;">£' + ticket.projectValue.toLocaleString() + '</div></div>' : '') +
                 (ticketType === 'referral' && ticket.projectValue ? '<div class="detail-info-item"><div class="detail-info-label">Project Value</div><div class="detail-info-value" style="color:var(--type-referral);font-weight:600;">£' + ticket.projectValue.toLocaleString() + '</div></div>' : '') +
+                ((ticketType === 'project' || ticketType === 'referral') && ticket.projectValue ? '<div class="detail-info-item"><div class="detail-info-label">PO Status</div><div class="detail-info-value"><span class="po-status-badge ' + (ticket.purchaseOrderReceived ? 'received' : 'pending') + '">' + (ticket.purchaseOrderReceived ? '✓ PO Received' : '⏳ Awaiting PO') + '</span></div></div>' : '') +
                 (ticketType === 'referral' && ticket.companyReferred ? '<div class="detail-info-item"><div class="detail-info-label">Company Referred</div><div class="detail-info-value">' + ticket.companyReferred + '</div></div>' : '') +
                 (ticketType === 'referral' && ticket.referralEmail ? '<div class="detail-info-item"><div class="detail-info-label">Referral Contact</div><div class="detail-info-value">' + ticket.referralEmail + '</div></div>' : '') +
             '</div>' +
@@ -627,8 +658,7 @@ function openRulesPopup() {
     const contract = state.contract;
     if (!contract) return;
 
-    const tasks = contract.baseTasks || contract.tasks || 0;
-    const maxTasksPerMonth = Math.floor(tasks / 12);
+    const maxTasksPerMonth = contract.tasksPerMonth || Math.floor((contract.baseTasks || 0) / 12);
     const body = document.getElementById('rulesPopupBody');
 
     body.innerHTML = '<div class="rules-highlight-row">' +
@@ -701,12 +731,17 @@ function renderTaskHistory() {
     '</tr></thead><tbody>';
 
     history.forEach(function(item) {
+        var valueDisplay = item.taskValue || 0;
+        var valueStyle = 'font-weight:600;text-align:center;';
+        if (valueDisplay < 0) valueStyle += 'color:#c62828;';
+        else if (valueDisplay > 0) valueStyle += 'color:#2e7d32;';
+        
         html += '<tr>' +
             '<td>' + formatFullDateTime(item.taskCreatedDate) + '</td>' +
             '<td><span class="task-history-type-badge ' + (item.taskType || '') + '">' + (item.taskType || '-') + '</span></td>' +
             '<td>' + (item.ticketNumber ? '#' + formatTicketNumber(item.ticketNumber) : '-') + '</td>' +
             '<td>' + (item.description || '-') + '</td>' +
-            '<td style="font-weight:600;text-align:center;">' + (item.taskValue || 0) + '</td>' +
+            '<td style="' + valueStyle + '">' + (valueDisplay > 0 ? '+' : '') + valueDisplay + '</td>' +
         '</tr>';
     });
 
@@ -773,7 +808,9 @@ function changeTicketType(ticketId, newType) {
 function saveProjectValue(ticketId) {
     const input = document.getElementById('projectValueInput');
     const value = parseFloat(input.value) || 0;
-    window.parent.postMessage({ action: 'updateProjectValue', ticketId: ticketId, value: value }, '*');
+    const poCheckbox = document.getElementById('poReceivedCheckbox');
+    const purchaseOrderReceived = poCheckbox ? poCheckbox.checked : false;
+    window.parent.postMessage({ action: 'updateProjectValue', ticketId: ticketId, value: value, purchaseOrderReceived: purchaseOrderReceived }, '*');
 }
 
 function addStatusNote(ticketId) {
@@ -993,6 +1030,12 @@ function submitTicket() {
     
     if (hasError) {
         showToast('Please fill in the required fields', 'error');
+        return;
+    }
+    
+    // Check if user has available tasks for support tickets
+    if (ticketType === 'support' && state.contract && state.contract.adjustedTasks <= 0) {
+        showToast('You have used all your contracted tasks for this period. Please contact support.', 'error');
         return;
     }
     
