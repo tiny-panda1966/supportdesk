@@ -1399,6 +1399,48 @@ body {
 .feedback-btn:hover { background: rgba(255,255,255,0.25); }
 .feedback-btn svg { width: 16px; height: 16px; fill: currentColor; }
 
+/* Account Dropdown */
+.account-wrapper { position: relative; }
+.account-btn { position: relative; }
+.account-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #fff;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    min-width: 180px;
+    z-index: 200;
+    overflow: hidden;
+}
+.account-dropdown.visible { display: block; }
+.account-dropdown-header {
+    padding: 12px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--grey-600);
+    border-bottom: 1px solid var(--grey-200);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.account-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 16px;
+    border: none;
+    background: none;
+    font-size: 14px;
+    color: var(--grey-800);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.account-dropdown-item:hover { background: var(--grey-100); }
+.account-dropdown-item svg { width: 18px; height: 18px; fill: var(--grey-600); }
+
     </style>
 </head>
 <body>
@@ -1507,6 +1549,18 @@ body {
                         <div class="notification-list" id="notificationList">
                             <div class="notification-empty">No new notifications</div>
                         </div>
+                    </div>
+                </div>
+                <div class="account-wrapper">
+                    <button class="header-action-btn account-btn" id="accountBtn" title="Account">
+                        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    </button>
+                    <div class="account-dropdown" id="accountDropdown">
+                        <div class="account-dropdown-header" id="accountUserName">Account</div>
+                        <button class="account-dropdown-item" id="logoutBtn">
+                            <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+                            Logout
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1927,6 +1981,7 @@ function handleSetUser(data) {
     document.getElementById('userName').textContent = data.user.name || data.user.email;
     document.getElementById('userEmail').textContent = data.user.email;
     document.getElementById('userAvatar').textContent = (data.user.name || data.user.email).charAt(0).toUpperCase();
+    document.getElementById('accountUserName').textContent = data.user.name || data.user.email;
 
     if (data.profile && data.profile.companyName) {
         document.getElementById('companyName').textContent = data.profile.companyName;
@@ -3091,6 +3146,20 @@ function initEventListeners() {
     document.getElementById('rulesBtn').addEventListener('click', openRulesPopup);
     document.getElementById('feedbackBtn').addEventListener('click', () => {
         window.parent.postMessage({ action: 'navigateToFeedback' }, '*');
+    });
+    
+    // Account dropdown
+    document.getElementById('accountBtn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        var dropdown = document.getElementById('accountDropdown');
+        dropdown.classList.toggle('visible');
+    });
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        document.getElementById('accountDropdown').classList.remove('visible');
+        window.parent.postMessage({ action: 'logout' }, '*');
+    });
+    document.addEventListener('click', () => {
+        document.getElementById('accountDropdown').classList.remove('visible');
     });
     document.getElementById('closeRulesPopup').addEventListener('click', closeRulesPopup);
     document.getElementById('rulesPopup').addEventListener('click', function(e) { if (e.target.id === 'rulesPopup') closeRulesPopup(); });
