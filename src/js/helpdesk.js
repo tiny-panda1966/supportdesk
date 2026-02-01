@@ -88,6 +88,7 @@ function handleSetUser(data) {
     document.getElementById('userName').textContent = data.user.name || data.user.email;
     document.getElementById('userEmail').textContent = data.user.email;
     document.getElementById('userAvatar').textContent = (data.user.name || data.user.email).charAt(0).toUpperCase();
+    document.getElementById('accountUserName').textContent = data.user.name || data.user.email;
 
     if (data.profile && data.profile.companyName) {
         document.getElementById('companyName').textContent = data.profile.companyName;
@@ -1252,6 +1253,20 @@ function initEventListeners() {
     document.getElementById('rulesBtn').addEventListener('click', openRulesPopup);
     document.getElementById('feedbackBtn').addEventListener('click', () => {
         window.parent.postMessage({ action: 'navigateToFeedback' }, '*');
+    });
+    
+    // Account dropdown
+    document.getElementById('accountBtn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        var dropdown = document.getElementById('accountDropdown');
+        dropdown.classList.toggle('visible');
+    });
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        document.getElementById('accountDropdown').classList.remove('visible');
+        window.parent.postMessage({ action: 'logout' }, '*');
+    });
+    document.addEventListener('click', () => {
+        document.getElementById('accountDropdown').classList.remove('visible');
     });
     document.getElementById('closeRulesPopup').addEventListener('click', closeRulesPopup);
     document.getElementById('rulesPopup').addEventListener('click', function(e) { if (e.target.id === 'rulesPopup') closeRulesPopup(); });
