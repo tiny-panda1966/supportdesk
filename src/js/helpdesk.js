@@ -28,6 +28,7 @@ const state = {
     contract: null,
     referrals: [],
     referralCount: 0,
+    taskHistory: [],
     notificationCount: 0,
     unreadNotes: {},
     notifications: []
@@ -61,7 +62,8 @@ window.addEventListener('message', (event) => {
         case 'showLiveIndicator': if (data.show) document.getElementById('liveIndicator').style.display = 'inline-flex'; break;
         case 'setContractInfo': handleContractInfo(data.contract); break;
         case 'setReferrals': handleSetReferrals(data); break;
-        case 'referralAdded': showToast('Referral submitted! +' + data.tasksAdded + ' tasks added', 'success'); closeReferralModal(); break;
+        case 'setTaskHistory': handleSetTaskHistory(data); break;
+        case 'referralAdded': showToast('Referral submitted! +' + data.tasksAdded + ' tasks added', 'success'); break;
         case 'ticketTypeUpdated': handleTicketTypeUpdated(data); break;
         case 'projectValueUpdated': handleProjectValueUpdated(data); break;
         case 'internalNotesUpdated': handleInternalNotesUpdated(data); break;
@@ -133,8 +135,11 @@ function handleContractInfo(contract) {
 function handleSetReferrals(data) {
     state.referrals = data.referrals || [];
     state.referralCount = data.count || 0;
-    document.getElementById('referralCount').textContent = state.referralCount;
-    renderReferralList();
+}
+
+function handleSetTaskHistory(data) {
+    state.taskHistory = data.taskHistory || [];
+    renderTaskHistory();
 }
 
 function handleTicketCreated(data) {
@@ -453,6 +458,7 @@ function renderTickets() {
             '</div>' +
             '<div class="ticket-subject">' + ticket.subject + '<span class="ticket-type-badge type-' + ticketType + '">' + typeLabel + '</span></div>' +
             (ticketType === 'project' && ticket.projectValue ? '<div class="project-value-display">£' + ticket.projectValue.toLocaleString() + '</div>' : '') +
+            (ticketType === 'referral' && ticket.projectValue ? '<div class="project-value-display" style="color:var(--type-referral);">£' + ticket.projectValue.toLocaleString() + '</div>' : '') +
             '<div class="ticket-meta">' +
                 '<span class="ticket-priority"><span class="priority-dot ' + ticket.priority + '"></span> ' + ticket.priority + '</span>' +
                 '<span>' + formatDate(ticket._createdDate) + '</span>' +
@@ -478,15 +484,16 @@ function renderTicketDetail(ticket) {
                 '<button class="admin-type-btn ' + (ticketType === 'support' ? 'active' : '') + '" data-type="support" onclick="changeTicketType(\'' + ticket._id + '\', \'support\')">Support</button>' +
                 '<button class="admin-type-btn ' + (ticketType === 'bug' ? 'active' : '') + '" data-type="bug" onclick="changeTicketType(\'' + ticket._id + '\', \'bug\')">Bug</button>' +
                 '<button class="admin-type-btn ' + (ticketType === 'project' ? 'active' : '') + '" data-type="project" onclick="changeTicketType(\'' + ticket._id + '\', \'project\')">Project</button>' +
+                '<button class="admin-type-btn ' + (ticketType === 'referral' ? 'active' : '') + '" data-type="referral" onclick="changeTicketType(\'' + ticket._id + '\', \'referral\')">Referral</button>' +
             '</div>' +
-            '<div class="project-value-section ' + (ticketType === 'project' ? 'visible' : '') + '">' +
+            '<div class="project-value-section ' + (ticketType === 'project' || ticketType === 'referral' ? 'visible' : '') + '">' +
                 '<div class="project-value-label">Project Value</div>' +
                 '<div class="project-value-input-wrapper">' +
                     '<span class="project-value-prefix">£</span>' +
                     '<input type="number" class="project-value-input" id="projectValueInput" value="' + (ticket.projectValue || 0) + '" min="0" step="100">' +
                     '<button class="project-value-save-btn" onclick="saveProjectValue(\'' + ticket._id + '\')">Save</button>' +
                 '</div>' +
-                '<div class="project-value-info">Every £1000 = 5 extra tasks</div>' +
+                (ticketType === 'referral' ? '<div class="project-value-info">Every £1,000 = 1 extra task (capped at £5,000 = 5 tasks)</div>' : '<div class="project-value-info">Every £1,000 = 5 extra tasks</div>') +
             '</div>' +
         '</div>';
     }
@@ -510,6 +517,9 @@ function renderTicketDetail(ticket) {
                 '<div class="detail-info-item"><div class="detail-info-label">Category</div><div class="detail-info-value">' + (ticket.customCategory || formatCategory(ticket.category)) + '</div></div>' +
                 '<div class="detail-info-item"><div class="detail-info-label">Business Impact</div><div class="detail-info-value">' + ((ticket.businessImpact || 'moderate').charAt(0).toUpperCase() + (ticket.businessImpact || 'moderate').slice(1)) + '</div></div>' +
                 (ticketType === 'project' && ticket.projectValue ? '<div class="detail-info-item"><div class="detail-info-label">Project Value</div><div class="detail-info-value" style="color:var(--type-project);font-weight:600;">£' + ticket.projectValue.toLocaleString() + '</div></div>' : '') +
+                (ticketType === 'referral' && ticket.projectValue ? '<div class="detail-info-item"><div class="detail-info-label">Project Value</div><div class="detail-info-value" style="color:var(--type-referral);font-weight:600;">£' + ticket.projectValue.toLocaleString() + '</div></div>' : '') +
+                (ticketType === 'referral' && ticket.companyReferred ? '<div class="detail-info-item"><div class="detail-info-label">Company Referred</div><div class="detail-info-value">' + ticket.companyReferred + '</div></div>' : '') +
+                (ticketType === 'referral' && ticket.referralEmail ? '<div class="detail-info-item"><div class="detail-info-label">Referral Contact</div><div class="detail-info-value">' + ticket.referralEmail + '</div></div>' : '') +
             '</div>' +
         '</div>' +
         (state.isAdmin ? '<div class="detail-section"><h3 class="detail-section-title">Update Status</h3>' +
@@ -607,18 +617,101 @@ function renderNotes(notes) {
 }
 
 function renderReferralList() {
-    const container = document.getElementById('referralListItems');
-    if (state.referrals.length === 0) {
-        container.innerHTML = '<div style="color:var(--grey-500);font-size:13px;">No referrals yet</div>';
+    // Legacy - referrals now shown as ticket type
+}
+
+// ==========================================
+// RULES POPUP
+// ==========================================
+function openRulesPopup() {
+    const contract = state.contract;
+    if (!contract) return;
+
+    const tasks = contract.baseTasks || contract.tasks || 0;
+    const maxTasksPerMonth = Math.floor(tasks / 12);
+    const body = document.getElementById('rulesPopupBody');
+
+    body.innerHTML = '<div class="rules-highlight-row">' +
+            '<div class="rules-highlight">' +
+                '<div class="rules-highlight-number">' + maxTasksPerMonth + '</div>' +
+                '<div class="rules-highlight-label">Max tasks per calendar month</div>' +
+            '</div>' +
+            '<div class="rules-highlight">' +
+                '<div class="rules-highlight-number">12</div>' +
+                '<div class="rules-highlight-label">Max hours per calendar month</div>' +
+            '</div>' +
+        '</div>' +
+        '<ul class="rules-list">' +
+            '<li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>' +
+                '<span>All tasks requested must fit within the <strong>12-hour limit</strong>.</span></li>' +
+            '<li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>' +
+                '<span>Tasks or hours unused within a calendar month <strong>do not accumulate or roll over</strong> to the subsequent month.</span></li>' +
+            '<li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>' +
+                '<span>Hourly Rate: <strong>£42.50</strong></span></li>' +
+            '<li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>' +
+                '<span>Average task duration: <strong>2.4 hours</strong></span></li>' +
+            '<li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>' +
+                '<span>Qualified referrals with a project value and purchase order will add <strong>1 task per £1,000</strong> of the stated value, <strong>capped at £5,000</strong>.</span></li>' +
+        '</ul>';
+
+    document.getElementById('rulesPopup').classList.add('active');
+}
+
+function closeRulesPopup() {
+    document.getElementById('rulesPopup').classList.remove('active');
+}
+
+// ==========================================
+// TASK HISTORY POPUP
+// ==========================================
+function openTaskHistoryPopup() {
+    document.getElementById('taskHistoryPopup').classList.add('active');
+    document.getElementById('taskHistoryPopupBody').innerHTML = '<div style="text-align:center;padding:40px;color:var(--grey-500);">Loading task history...</div>';
+    window.parent.postMessage({ action: 'getTaskHistory' }, '*');
+}
+
+function closeTaskHistoryPopup() {
+    document.getElementById('taskHistoryPopup').classList.remove('active');
+}
+
+function renderTaskHistory() {
+    const container = document.getElementById('taskHistoryPopupBody');
+    const history = state.taskHistory;
+
+    if (!history || history.length === 0) {
+        container.innerHTML = '<div class="task-history-empty">No task history found</div>';
         return;
     }
-    container.innerHTML = state.referrals.map(ref => 
-        '<div class="referral-item">' +
-            '<div class="referral-item-company">' + ref.companyReferred + '</div>' +
-            '<div class="referral-item-email">' + ref.emailAddress + '</div>' +
-            '<div class="referral-item-date">' + formatDate(ref._createdDate) + '</div>' +
-        '</div>'
-    ).join('');
+
+    // Summary stats
+    const totalTasks = history.length;
+    const totalValue = history.reduce(function(sum, h) { return sum + (h.taskValue || 0); }, 0);
+    const projects = history.filter(function(h) { return h.taskType === 'PROJECT'; }).length;
+    const referrals = history.filter(function(h) { return h.taskType === 'REFERRAL'; }).length;
+
+    var html = '<div class="task-history-summary">' +
+        '<div class="task-history-stat"><div class="task-history-stat-value">' + totalTasks + '</div><div class="task-history-stat-label">Total Entries</div></div>' +
+        '<div class="task-history-stat"><div class="task-history-stat-value">' + totalValue.toFixed(1) + '</div><div class="task-history-stat-label">Total Task Value</div></div>' +
+        '<div class="task-history-stat"><div class="task-history-stat-value">' + projects + '</div><div class="task-history-stat-label">Projects</div></div>' +
+        '<div class="task-history-stat"><div class="task-history-stat-value">' + referrals + '</div><div class="task-history-stat-label">Referrals</div></div>' +
+    '</div>';
+
+    html += '<table class="task-history-table"><thead><tr>' +
+        '<th>Date</th><th>Type</th><th>Ticket</th><th>Description</th><th>Task Value</th>' +
+    '</tr></thead><tbody>';
+
+    history.forEach(function(item) {
+        html += '<tr>' +
+            '<td>' + formatFullDateTime(item.taskCreatedDate) + '</td>' +
+            '<td><span class="task-history-type-badge ' + (item.taskType || '') + '">' + (item.taskType || '-') + '</span></td>' +
+            '<td>' + (item.ticketNumber ? '#' + formatTicketNumber(item.ticketNumber) : '-') + '</td>' +
+            '<td>' + (item.description || '-') + '</td>' +
+            '<td style="font-weight:600;text-align:center;">' + (item.taskValue || 0) + '</td>' +
+        '</tr>';
+    });
+
+    html += '</tbody></table>';
+    container.innerHTML = html;
 }
 
 // ==========================================
@@ -754,17 +847,29 @@ function closeNewTicketModal() {
     document.getElementById('subjectError').style.display = 'none';
     document.getElementById('descriptionError').style.display = 'none';
     document.getElementById('submitTicket').classList.remove('loading');
+    // Clear referral validation
+    var rc = document.getElementById('referralCompanyName');
+    var re = document.getElementById('referralEmailAddress');
+    if (rc) rc.classList.remove('invalid');
+    if (re) re.classList.remove('invalid');
+    var rce = document.getElementById('referralCompanyError');
+    var ree = document.getElementById('referralEmailError');
+    if (rce) rce.style.display = 'none';
+    if (ree) ree.style.display = 'none';
 }
 
 function openReferralModal() {
-    document.getElementById('referralModal').classList.add('active');
-    window.scrollTo(0, 0);
-    window.parent.postMessage({ action: 'modalOpened', modal: 'referral' }, '*');
+    // Legacy - referrals now handled via new ticket form
+    openModal();
+    // Auto-select referral type
+    setTimeout(function() {
+        var referralOption = document.querySelector('.type-option[data-type="referral"]');
+        if (referralOption) referralOption.click();
+    }, 100);
 }
 
 function closeReferralModal() {
-    document.getElementById('referralModal').classList.remove('active');
-    document.getElementById('referralForm').reset();
+    // Legacy stub
 }
 
 function openImageModal(url) {
@@ -796,6 +901,7 @@ function resetForm() {
 
     document.getElementById('customCategoryGroup').style.display = 'none';
     document.getElementById('categoryFormGroup').style.display = 'block';
+    document.getElementById('referralFieldsGroup').style.display = 'none';
     
     // Clear validation states
     document.getElementById('ticketSubject').classList.remove('invalid');
@@ -803,6 +909,20 @@ function resetForm() {
     document.getElementById('subjectError').style.display = 'none';
     document.getElementById('descriptionError').style.display = 'none';
     document.getElementById('submitTicket').classList.remove('loading');
+    
+    // Clear referral validation
+    var refCompany = document.getElementById('referralCompanyName');
+    var refEmail = document.getElementById('referralEmailAddress');
+    if (refCompany) { refCompany.classList.remove('invalid'); refCompany.value = ''; }
+    if (refEmail) { refEmail.classList.remove('invalid'); refEmail.value = ''; }
+    var refPhone = document.getElementById('referralPhoneNumber');
+    var refComment = document.getElementById('referralCommentText');
+    if (refPhone) refPhone.value = '';
+    if (refComment) refComment.value = '';
+    var refCompanyErr = document.getElementById('referralCompanyError');
+    var refEmailErr = document.getElementById('referralEmailError');
+    if (refCompanyErr) refCompanyErr.style.display = 'none';
+    if (refEmailErr) refEmailErr.style.display = 'none';
 }
 
 function submitTicket() {
@@ -821,6 +941,16 @@ function submitTicket() {
     subjectError.style.display = 'none';
     descriptionError.style.display = 'none';
     
+    // Clear referral validation
+    var refCompanyInput = document.getElementById('referralCompanyName');
+    var refEmailInput = document.getElementById('referralEmailAddress');
+    var refCompanyError = document.getElementById('referralCompanyError');
+    var refEmailError = document.getElementById('referralEmailError');
+    if (refCompanyInput) refCompanyInput.classList.remove('invalid');
+    if (refEmailInput) refEmailInput.classList.remove('invalid');
+    if (refCompanyError) refCompanyError.style.display = 'none';
+    if (refEmailError) refEmailError.style.display = 'none';
+    
     let hasError = false;
     
     if (subject.length < 5) {
@@ -834,6 +964,33 @@ function submitTicket() {
         hasError = true;
     }
     
+    // Referral-specific validation
+    var referralData = {};
+    if (ticketType === 'referral') {
+        var companyReferred = refCompanyInput ? refCompanyInput.value.trim() : '';
+        var emailAddress = refEmailInput ? refEmailInput.value.trim() : '';
+        var phone = document.getElementById('referralPhoneNumber') ? document.getElementById('referralPhoneNumber').value.trim() : '';
+        var comment = document.getElementById('referralCommentText') ? document.getElementById('referralCommentText').value.trim() : '';
+        
+        if (!companyReferred) {
+            if (refCompanyInput) refCompanyInput.classList.add('invalid');
+            if (refCompanyError) refCompanyError.style.display = 'block';
+            hasError = true;
+        }
+        if (!emailAddress || !emailAddress.includes('@')) {
+            if (refEmailInput) refEmailInput.classList.add('invalid');
+            if (refEmailError) refEmailError.style.display = 'block';
+            hasError = true;
+        }
+        
+        referralData = {
+            companyReferred: companyReferred,
+            emailAddress: emailAddress,
+            phone: phone,
+            comment: comment
+        };
+    }
+    
     if (hasError) {
         showToast('Please fill in the required fields', 'error');
         return;
@@ -842,7 +999,7 @@ function submitTicket() {
     // Show loader
     submitBtn.classList.add('loading');
 
-    window.parent.postMessage({
+    var messageData = {
         action: 'createTicket',
         ticketType: ticketType,
         category: ticketType === 'support' ? (state.selectedCategory || 'general') : ticketType,
@@ -851,26 +1008,22 @@ function submitTicket() {
         description: description,
         priority: state.selectedPriority,
         businessImpact: state.selectedImpact
-    }, '*');
+    };
+    
+    // Add referral fields if referral type
+    if (ticketType === 'referral') {
+        messageData.companyReferred = referralData.companyReferred;
+        messageData.referralEmail = referralData.emailAddress;
+        messageData.referralPhone = referralData.phone;
+        messageData.referralComment = referralData.comment;
+    }
+
+    window.parent.postMessage(messageData, '*');
 }
 
 function submitReferral(e) {
-    e.preventDefault();
-    const companyReferred = document.getElementById('referralCompany').value.trim();
-    const emailAddress = document.getElementById('referralEmail').value.trim();
-    const phone = document.getElementById('referralPhone').value.trim();
-    const comment = document.getElementById('referralComment').value.trim();
-
-    if (!companyReferred) {
-        showToast('Company name is required', 'error');
-        return;
-    }
-    if (!emailAddress) {
-        showToast('Email is required', 'error');
-        return;
-    }
-
-    window.parent.postMessage({ action: 'addReferral', companyReferred: companyReferred, emailAddress: emailAddress, phone: phone, comment: comment }, '*');
+    // Legacy - referrals now submitted through the new ticket form
+    if (e) e.preventDefault();
 }
 
 // ==========================================
@@ -893,11 +1046,13 @@ function updateTypeCounts() {
     const support = state.tickets.filter(t => (t.ticketType || 'support') === 'support').length;
     const bug = state.tickets.filter(t => t.ticketType === 'bug').length;
     const project = state.tickets.filter(t => t.ticketType === 'project').length;
+    const referral = state.tickets.filter(t => t.ticketType === 'referral').length;
 
     document.getElementById('allTypeCount').textContent = all;
     document.getElementById('supportTypeCount').textContent = support;
     document.getElementById('bugTypeCount').textContent = bug;
     document.getElementById('projectTypeCount').textContent = project;
+    document.getElementById('referralTypeCount').textContent = referral;
 }
 
 function populateFilters() {
@@ -1048,10 +1203,15 @@ function initEventListeners() {
     document.getElementById('cancelTicket').addEventListener('click', closeNewTicketModal);
     document.getElementById('submitTicket').addEventListener('click', submitTicket);
     document.getElementById('pacmanBtn').addEventListener('click', () => window.parent.postMessage({ action: 'pacman' }, '*'));
-    document.getElementById('referralBtn').addEventListener('click', openReferralModal);
-    document.getElementById('closeReferralModal').addEventListener('click', closeReferralModal);
-    document.getElementById('referralForm').addEventListener('submit', submitReferral);
     document.getElementById('imageModal').addEventListener('click', closeImageModal);
+    
+    // Rules and Task History popups
+    document.getElementById('rulesBtn').addEventListener('click', openRulesPopup);
+    document.getElementById('closeRulesPopup').addEventListener('click', closeRulesPopup);
+    document.getElementById('rulesPopup').addEventListener('click', function(e) { if (e.target.id === 'rulesPopup') closeRulesPopup(); });
+    document.getElementById('taskHistoryBtn').addEventListener('click', openTaskHistoryPopup);
+    document.getElementById('closeTaskHistoryPopup').addEventListener('click', closeTaskHistoryPopup);
+    document.getElementById('taskHistoryPopup').addEventListener('click', function(e) { if (e.target.id === 'taskHistoryPopup') closeTaskHistoryPopup(); });
     
     // Notification popup
     document.getElementById('notificationBtn').addEventListener('click', toggleNotificationPopup);
@@ -1115,11 +1275,19 @@ function initEventListeners() {
             option.classList.add('selected');
             state.selectedTicketType = option.dataset.type;
 
+            // Show/hide category fields
             if (option.dataset.type === 'support') {
                 document.getElementById('categoryFormGroup').style.display = 'block';
             } else {
                 document.getElementById('categoryFormGroup').style.display = 'none';
                 document.getElementById('customCategoryGroup').style.display = 'none';
+            }
+            
+            // Show/hide referral fields
+            if (option.dataset.type === 'referral') {
+                document.getElementById('referralFieldsGroup').style.display = 'block';
+            } else {
+                document.getElementById('referralFieldsGroup').style.display = 'none';
             }
         });
     });
@@ -1155,9 +1323,5 @@ function initEventListeners() {
     // Modal close on overlay click
     document.getElementById('newTicketModal').addEventListener('click', (e) => {
         if (e.target.id === 'newTicketModal') closeNewTicketModal();
-    });
-
-    document.getElementById('referralModal').addEventListener('click', (e) => {
-        if (e.target.id === 'referralModal') closeReferralModal();
     });
 }
