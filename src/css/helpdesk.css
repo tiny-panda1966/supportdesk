@@ -1292,6 +1292,8 @@ body {
 .task-history-type-badge.PROJECT { background: #f3e5f5; color: var(--type-project); }
 .task-history-type-badge.REFERRAL { background: #e0f2f1; color: var(--type-referral); }
 .task-history-type-badge.FEEDBACK { background: #e3f2fd; color: var(--type-support); }
+.task-history-type-badge.SUPPORT { background: #e3f2fd; color: var(--type-support); }
+.task-history-type-badge.BUG { background: #fce4ec; color: var(--type-bug); }
 .task-history-empty {
     text-align: center;
     padding: 40px 20px;
