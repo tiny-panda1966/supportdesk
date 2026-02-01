@@ -889,7 +889,6 @@ body {
 .audio-player {
     max-width: 260px;
 }
-.audio-player audio { display: none; }
 .audio-player .media-controls { padding: 8px 10px; }
 .audio-player .play-btn svg { width: 22px; height: 22px; }
 
@@ -2718,8 +2717,7 @@ function renderNotes(notes) {
                     '<div class="media-filename">' + (att.filename || 'Video') + '</div>' +
                 '</div></div>';
             } else if (mediaType === 'audio') {
-                attachmentHtml = '<div class="note-attachment"><div class="media-player audio-player" id="' + pid + '">' +
-                    '<audio preload="auto" src="' + att.url + '"></audio>' +
+                attachmentHtml = '<div class="note-attachment"><div class="media-player audio-player" id="' + pid + '" data-audio-url="' + att.url + '">' +
                     '<div class="media-controls">' +
                         '<button class="media-btn play-btn" onclick="toggleMediaPlay(\'' + pid + '\')">' +
                             '<svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>' +
@@ -3032,10 +3030,27 @@ function closeImageModal() {
 // ==========================================
 // CUSTOM MEDIA PLAYER CONTROLS
 // ==========================================
+var audioRegistry = {};
+
 function getMediaElement(playerId) {
     var player = document.getElementById(playerId);
     if (!player) return null;
-    return player.querySelector('video') || player.querySelector('audio');
+    // Check for video element in DOM
+    var video = player.querySelector('video');
+    if (video) return video;
+    // Check audio registry
+    if (audioRegistry[playerId]) return audioRegistry[playerId];
+    return null;
+}
+
+function createAudioForPlayer(playerId, url) {
+    if (audioRegistry[playerId]) return audioRegistry[playerId];
+    var audio = new Audio();
+    audio.crossOrigin = 'anonymous';
+    audio.preload = 'auto';
+    audio.src = url;
+    audioRegistry[playerId] = audio;
+    return audio;
 }
 
 function formatMediaTime(seconds) {
@@ -3046,15 +3061,24 @@ function formatMediaTime(seconds) {
 }
 
 function toggleMediaPlay(playerId) {
+    var player = document.getElementById(playerId);
+    if (!player) return;
+    
+    // Lazily create Audio object for audio players
+    var audioUrl = player.getAttribute('data-audio-url');
+    if (audioUrl && !audioRegistry[playerId]) {
+        createAudioForPlayer(playerId, audioUrl);
+        startProgressUpdate(playerId);
+    }
+    
     var media = getMediaElement(playerId);
     if (!media) return;
-    var player = document.getElementById(playerId);
     
     if (media.paused) {
         // Pause all other players first
         document.querySelectorAll('.media-player').forEach(function(p) {
             if (p.id !== playerId) {
-                var otherMedia = p.querySelector('video') || p.querySelector('audio');
+                var otherMedia = getMediaElement(p.id);
                 if (otherMedia && !otherMedia.paused) {
                     otherMedia.pause();
                     p.classList.remove('playing');
@@ -3069,16 +3093,22 @@ function toggleMediaPlay(playerId) {
             }).catch(function(err) {
                 console.error('Playback failed:', err);
                 player.classList.remove('playing');
-                // Try loading and playing again
-                media.load();
-                media.addEventListener('canplay', function retryPlay() {
-                    media.removeEventListener('canplay', retryPlay);
-                    media.play().then(function() {
-                        player.classList.add('playing');
-                    }).catch(function() {
-                        console.error('Retry playback also failed');
+                // Try without crossOrigin
+                if (audioUrl && media.crossOrigin) {
+                    media.crossOrigin = null;
+                    media.src = audioUrl;
+                    media.load();
+                    media.addEventListener('canplay', function retryPlay() {
+                        media.removeEventListener('canplay', retryPlay);
+                        media.play().then(function() {
+                            player.classList.add('playing');
+                        }).catch(function(e2) {
+                            console.error('Retry also failed:', e2);
+                            var timeEl = player.querySelector('.media-time');
+                            if (timeEl) timeEl.textContent = 'Playback error';
+                        });
                     });
-                });
+                }
             });
         } else {
             player.classList.add('playing');
