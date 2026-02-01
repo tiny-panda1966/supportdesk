@@ -881,7 +881,6 @@ body {
 .audio-player {
     max-width: 260px;
 }
-.audio-player audio { display: none; }
 .audio-player .media-controls { padding: 8px 10px; }
 .audio-player .play-btn svg { width: 22px; height: 22px; }
 
