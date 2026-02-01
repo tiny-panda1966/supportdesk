@@ -1350,7 +1350,27 @@ body {
     width: 100%;
     margin-top: 4px;
     padding: 8px 16px;
+    position: relative;
 }
+.project-value-save-full.loading {
+    pointer-events: none;
+    opacity: 0.7;
+    color: transparent;
+}
+.project-value-save-full.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* Task History UNUSED/OVERUSE badges */
 .task-history-type-badge.UNUSED { background: #fff3e0; color: #e65100; }
