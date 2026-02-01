@@ -723,12 +723,16 @@ function renderTaskHistory() {
     // Summary stats
     const totalTasks = history.length;
     const totalValue = history.reduce(function(sum, h) { return sum + (h.taskValue || 0); }, 0);
+    const support = history.filter(function(h) { return h.taskType === 'SUPPORT'; }).length;
+    const bugs = history.filter(function(h) { return h.taskType === 'BUG'; }).length;
     const projects = history.filter(function(h) { return h.taskType === 'PROJECT'; }).length;
     const referrals = history.filter(function(h) { return h.taskType === 'REFERRAL'; }).length;
 
     var html = '<div class="task-history-summary">' +
         '<div class="task-history-stat"><div class="task-history-stat-value">' + totalTasks + '</div><div class="task-history-stat-label">Total Entries</div></div>' +
-        '<div class="task-history-stat"><div class="task-history-stat-value">' + totalValue.toFixed(1) + '</div><div class="task-history-stat-label">Total Task Value</div></div>' +
+        '<div class="task-history-stat"><div class="task-history-stat-value">' + totalValue.toFixed(1) + '</div><div class="task-history-stat-label">Net Task Value</div></div>' +
+        '<div class="task-history-stat"><div class="task-history-stat-value">' + support + '</div><div class="task-history-stat-label">Support</div></div>' +
+        '<div class="task-history-stat"><div class="task-history-stat-value">' + bugs + '</div><div class="task-history-stat-label">Bugs</div></div>' +
         '<div class="task-history-stat"><div class="task-history-stat-value">' + projects + '</div><div class="task-history-stat-label">Projects</div></div>' +
         '<div class="task-history-stat"><div class="task-history-stat-value">' + referrals + '</div><div class="task-history-stat-label">Referrals</div></div>' +
     '</div>';
@@ -947,6 +951,10 @@ function resetForm() {
 
     document.getElementById('categoryFormGroup').style.display = 'block';
     document.getElementById('referralFieldsGroup').style.display = 'none';
+    document.getElementById('subjectFormGroup').style.display = 'block';
+    document.getElementById('descriptionFormGroup').style.display = 'block';
+    document.getElementById('priorityFormGroup').style.display = 'block';
+    document.getElementById('impactFormGroup').style.display = 'block';
     
     // Clear validation states
     document.getElementById('ticketSubject').classList.remove('invalid');
@@ -998,15 +1006,17 @@ function submitTicket() {
     
     let hasError = false;
     
-    if (subject.length < 5) {
-        subjectInput.classList.add('invalid');
-        subjectError.style.display = 'block';
-        hasError = true;
-    }
-    if (description.length < 10) {
-        descriptionInput.classList.add('invalid');
-        descriptionError.style.display = 'block';
-        hasError = true;
+    if (ticketType !== 'referral') {
+        if (subject.length < 5) {
+            subjectInput.classList.add('invalid');
+            subjectError.style.display = 'block';
+            hasError = true;
+        }
+        if (description.length < 10) {
+            descriptionInput.classList.add('invalid');
+            descriptionError.style.display = 'block';
+            hasError = true;
+        }
     }
     
     // Referral-specific validation
@@ -1055,10 +1065,10 @@ function submitTicket() {
         ticketType: ticketType,
         category: ticketType === 'support' ? (state.selectedCategory || 'general') : ticketType,
         customCategory: (document.getElementById('customCategory') ? document.getElementById('customCategory').value.trim() : ''),
-        subject: subject,
-        description: description,
-        priority: state.selectedPriority,
-        businessImpact: state.selectedImpact
+        subject: ticketType === 'referral' ? 'Referral' : subject,
+        description: ticketType === 'referral' ? '' : description,
+        priority: ticketType === 'referral' ? 'medium' : state.selectedPriority,
+        businessImpact: ticketType === 'referral' ? 'none' : state.selectedImpact
     };
     
     // Add referral fields if referral type
@@ -1067,6 +1077,7 @@ function submitTicket() {
         messageData.referralEmail = referralData.emailAddress;
         messageData.referralPhone = referralData.phone;
         messageData.referralComment = referralData.comment;
+        messageData.subject = 'Referral: ' + referralData.companyReferred;
     }
 
     window.parent.postMessage(messageData, '*');
@@ -1380,8 +1391,16 @@ function initEventListeners() {
             // Show/hide referral fields
             if (option.dataset.type === 'referral') {
                 document.getElementById('referralFieldsGroup').style.display = 'block';
+                document.getElementById('subjectFormGroup').style.display = 'none';
+                document.getElementById('descriptionFormGroup').style.display = 'none';
+                document.getElementById('priorityFormGroup').style.display = 'none';
+                document.getElementById('impactFormGroup').style.display = 'none';
             } else {
                 document.getElementById('referralFieldsGroup').style.display = 'none';
+                document.getElementById('subjectFormGroup').style.display = 'block';
+                document.getElementById('descriptionFormGroup').style.display = 'block';
+                document.getElementById('priorityFormGroup').style.display = 'block';
+                document.getElementById('impactFormGroup').style.display = 'block';
             }
         });
     });
