@@ -665,10 +665,10 @@ function openRulesPopup() {
     const contract = state.contract;
     if (!contract) return;
 
-    const maxTasksPerMonth = contract.tasksPerMonth || Math.floor((contract.baseTasks || 0) / 12);
+    const maxTasksPerMonth = Math.round(contract.tasksPerMonth || Math.floor((contract.baseTasks || 0) / 12));
     const body = document.getElementById('rulesPopupBody');
 
-    const hoursPerMonth = maxTasksPerMonth * 2.4;
+    const hoursPerMonth = Math.round(maxTasksPerMonth * 2.4 * 10) / 10;
 
     body.innerHTML = '<div class="rules-highlight-row">' +
             '<div class="rules-highlight">' +
@@ -945,7 +945,6 @@ function resetForm() {
     document.querySelector('.impact-option.moderate').classList.add('selected');
     document.querySelector('.type-option[data-type="support"]').classList.add('selected');
 
-    document.getElementById('customCategoryGroup').style.display = 'none';
     document.getElementById('categoryFormGroup').style.display = 'block';
     document.getElementById('referralFieldsGroup').style.display = 'none';
     
@@ -1055,7 +1054,7 @@ function submitTicket() {
         action: 'createTicket',
         ticketType: ticketType,
         category: ticketType === 'support' ? (state.selectedCategory || 'general') : ticketType,
-        customCategory: document.getElementById('customCategory').value.trim(),
+        customCategory: (document.getElementById('customCategory') ? document.getElementById('customCategory').value.trim() : ''),
         subject: subject,
         description: description,
         priority: state.selectedPriority,
@@ -1376,7 +1375,6 @@ function initEventListeners() {
                 document.getElementById('categoryFormGroup').style.display = 'block';
             } else {
                 document.getElementById('categoryFormGroup').style.display = 'none';
-                document.getElementById('customCategoryGroup').style.display = 'none';
             }
             
             // Show/hide referral fields
