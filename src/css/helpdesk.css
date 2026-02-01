@@ -1192,7 +1192,7 @@ body {
     bottom: 0;
     background: rgba(0,0,0,0.5);
     display: none;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     z-index: 1000;
     padding: 20px;
@@ -1432,3 +1432,21 @@ body {
 }
 .account-dropdown-item:hover { background: var(--grey-100); }
 .account-dropdown-item svg { width: 18px; height: 18px; fill: var(--grey-600); }
+
+/* Opportunity Category Badge */
+.opportunity-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.opportunity-badge-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
