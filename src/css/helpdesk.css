@@ -770,8 +770,121 @@ body {
 .note-time { font-size: 11px; color: var(--grey-500); text-align: right; margin-top: 4px; }
 .note-attachment { margin-top: 8px; }
 .note-attachment img { max-width: 200px; max-height: 200px; border-radius: var(--radius-sm); cursor: pointer; }
-.note-attachment video { max-width: 250px; max-height: 200px; border-radius: var(--radius-sm); }
-.note-attachment audio { width: 100%; max-width: 250px; }
+
+/* Custom Media Player */
+.media-player {
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: #1a1a2e;
+    max-width: 280px;
+}
+.media-player .video-wrapper {
+    position: relative;
+    background: #000;
+}
+.media-player video {
+    display: block;
+    width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+}
+.video-play-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.35);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.video-play-overlay:hover { background: rgba(0,0,0,0.5); }
+.video-play-overlay svg {
+    width: 48px;
+    height: 48px;
+    fill: #fff;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+}
+.media-player.playing .video-play-overlay { display: none; }
+
+.media-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px;
+}
+.media-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.15s;
+    flex-shrink: 0;
+}
+.media-btn:hover { background: rgba(255,255,255,0.15); }
+.media-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: #fff;
+}
+.play-btn .icon-pause { display: none; }
+.media-player.playing .play-btn .icon-play { display: none; }
+.media-player.playing .play-btn .icon-pause { display: block; }
+
+.volume-btn .icon-vol-off { display: none; }
+.media-player.muted .volume-btn .icon-vol-on { display: none; }
+.media-player.muted .volume-btn .icon-vol-off { display: block; }
+
+.media-progress {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+    cursor: pointer;
+    position: relative;
+    min-width: 40px;
+}
+.media-progress:hover { height: 6px; }
+.media-progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    width: 0;
+    transition: width 0.1s linear;
+    pointer-events: none;
+}
+.media-time {
+    font-size: 11px;
+    color: rgba(255,255,255,0.7);
+    white-space: nowrap;
+    min-width: 70px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+.media-filename {
+    padding: 4px 8px 6px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Audio player - more compact */
+.audio-player {
+    max-width: 260px;
+}
+.audio-player audio { display: none; }
+.audio-player .media-controls { padding: 8px 10px; }
+.audio-player .play-btn svg { width: 22px; height: 22px; }
+
 .note-attachment-doc {
     display: flex;
     align-items: center;
