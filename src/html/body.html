@@ -17,6 +17,16 @@
                     <div class="task-label">Available</div>
                 </div>
             </div>
+            <div class="contract-actions">
+                <button class="contract-action-btn" id="rulesBtn" title="Rules">
+                    <svg viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                    <span>Rules</span>
+                </button>
+                <button class="contract-action-btn" id="taskHistoryBtn" title="Task History">
+                    <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+                    <span>History</span>
+                </button>
+            </div>
         </div>
 
         <!-- Header -->
@@ -61,13 +71,6 @@
                         <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
                     </button>
                     <span class="header-action-label">Branding</span>
-                </div>
-                <div class="header-action-item">
-                    <button class="header-action-btn referral-btn" id="referralBtn" title="Refer a Company">
-                        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-                        <span class="referral-count" id="referralCount">0</span>
-                    </button>
-                    <span class="header-action-label">Referrals</span>
                 </div>
                 <div class="notification-wrapper">
                     <button class="header-action-btn notification-btn" id="notificationBtn" title="Notifications">
@@ -155,6 +158,10 @@
             <button class="ticket-type-tab" data-type="project">
                 <svg class="type-icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4 14h-2v-4H7V9h6V5h2v4h4v4h-4v4z"/></svg>
                 Projects <span class="ticket-type-count" id="projectTypeCount">0</span>
+            </button>
+            <button class="ticket-type-tab" data-type="referral">
+                <svg class="type-icon" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                Referrals <span class="ticket-type-count" id="referralTypeCount">0</span>
             </button>
         </div>
 
@@ -250,6 +257,33 @@
                                 <div class="type-option-title">New Project</div>
                                 <div class="type-option-desc">Request new development</div>
                             </div>
+                            <div class="type-option" data-type="referral">
+                                <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                                <div class="type-option-title">Referral</div>
+                                <div class="type-option-desc">Refer a company</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Referral Fields (shown when referral type selected) -->
+                    <div id="referralFieldsGroup" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label">Company Being Referred <span class="required">*</span></label>
+                            <input type="text" id="referralCompanyName" class="form-input" placeholder="Company name">
+                            <div class="field-error" id="referralCompanyError">Company name is required</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Contact Email <span class="required">*</span></label>
+                            <input type="email" id="referralEmailAddress" class="form-input" placeholder="contact@company.com">
+                            <div class="field-error" id="referralEmailError">Valid email address is required</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone (Optional)</label>
+                            <input type="text" id="referralPhoneNumber" class="form-input" placeholder="+44 123 456 7890">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Comment (Optional)</label>
+                            <textarea id="referralCommentText" class="form-textarea" style="min-height: 80px;" placeholder="Any additional information..."></textarea>
                         </div>
                     </div>
 
@@ -345,42 +379,32 @@
         </div>
     </div>
 
-    <!-- Referral Modal -->
-    <div class="referral-modal" id="referralModal">
-        <div class="referral-modal-content">
-            <div class="referral-modal-header">
-                <h3 class="referral-modal-title">Refer a Company</h3>
-                <button class="referral-modal-close" id="closeReferralModal">
+    <!-- Rules Popup -->
+    <div class="rules-popup-overlay" id="rulesPopup">
+        <div class="rules-popup-content">
+            <div class="rules-popup-header">
+                <h3>Contract Rules</h3>
+                <button class="rules-popup-close" id="closeRulesPopup">
                     <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                 </button>
             </div>
-            <div class="referral-modal-body">
-                <div class="referral-bonus">
-                    <strong>+5 tasks</strong> per successful referral!
-                </div>
-                <form id="referralForm">
-                    <div class="referral-form-group">
-                        <label class="referral-form-label">Company Name <span class="required">*</span></label>
-                        <input type="text" id="referralCompany" class="referral-form-input" placeholder="Company name">
-                    </div>
-                    <div class="referral-form-group">
-                        <label class="referral-form-label">Contact Email <span class="required">*</span></label>
-                        <input type="email" id="referralEmail" class="referral-form-input" placeholder="contact@company.com">
-                    </div>
-                    <div class="referral-form-group">
-                        <label class="referral-form-label">Phone (Optional)</label>
-                        <input type="text" id="referralPhone" class="referral-form-input" placeholder="+44 123 456 7890">
-                    </div>
-                    <div class="referral-form-group">
-                        <label class="referral-form-label">Comment (Optional)</label>
-                        <textarea id="referralComment" class="referral-form-textarea" placeholder="Any additional information..."></textarea>
-                    </div>
-                    <button type="submit" class="referral-submit-btn">Submit Referral</button>
-                </form>
-                <div class="referral-list" id="referralList">
-                    <h4 class="referral-list-title">Your Referrals</h4>
-                    <div id="referralListItems"></div>
-                </div>
+            <div class="rules-popup-body" id="rulesPopupBody">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Task History Popup -->
+    <div class="task-history-overlay" id="taskHistoryPopup">
+        <div class="task-history-content">
+            <div class="task-history-header">
+                <h3>Task History</h3>
+                <button class="task-history-close" id="closeTaskHistoryPopup">
+                    <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            <div class="task-history-body" id="taskHistoryPopupBody">
+                <div style="text-align:center;padding:40px;color:var(--grey-500);">Loading task history...</div>
             </div>
         </div>
     </div>
