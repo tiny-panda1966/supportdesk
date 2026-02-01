@@ -817,6 +817,8 @@ function saveProjectValue(ticketId) {
     const value = parseFloat(input.value) || 0;
     const poCheckbox = document.getElementById('poReceivedCheckbox');
     const purchaseOrderReceived = poCheckbox ? poCheckbox.checked : false;
+    var saveBtn = document.querySelector('.project-value-save-full');
+    if (saveBtn) saveBtn.classList.add('loading');
     window.parent.postMessage({ action: 'updateProjectValue', ticketId: ticketId, value: value, purchaseOrderReceived: purchaseOrderReceived }, '*');
 }
 
