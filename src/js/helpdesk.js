@@ -50,7 +50,10 @@ window.addEventListener('message', (event) => {
         case 'setUser': handleSetUser(data); break;
         case 'setTickets': handleSetTickets(data); break;
         case 'accessDenied': showAccessDenied(data.message); break;
-        case 'error': showToast(data.message, 'error'); break;
+        case 'error': 
+            showToast(data.message, 'error'); 
+            document.getElementById('submitTicket').classList.remove('loading');
+            break;
         case 'ticketCreated': handleTicketCreated(data); break;
         case 'noteAdded': handleNoteAdded(data); break;
         case 'statusUpdated': handleStatusUpdated(data); break;
