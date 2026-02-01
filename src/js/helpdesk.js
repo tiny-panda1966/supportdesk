@@ -1250,6 +1250,9 @@ function initEventListeners() {
     
     // Rules and Task History popups
     document.getElementById('rulesBtn').addEventListener('click', openRulesPopup);
+    document.getElementById('feedbackBtn').addEventListener('click', () => {
+        window.parent.postMessage({ action: 'navigateToFeedback' }, '*');
+    });
     document.getElementById('closeRulesPopup').addEventListener('click', closeRulesPopup);
     document.getElementById('rulesPopup').addEventListener('click', function(e) { if (e.target.id === 'rulesPopup') closeRulesPopup(); });
     document.getElementById('taskHistoryBtn').addEventListener('click', openTaskHistoryPopup);
