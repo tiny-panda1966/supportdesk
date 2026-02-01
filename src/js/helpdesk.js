@@ -251,6 +251,10 @@ function handleProjectValueUpdated(data) {
         if (data.purchaseOrderReceived !== undefined) {
             ticket.purchaseOrderReceived = data.purchaseOrderReceived;
         }
+        if (data.opportunityCategory !== undefined) {
+            ticket.opportunityCategory = data.opportunityCategory;
+            ticket.opportunityCategoryColour = data.opportunityCategoryColour || '';
+        }
         renderTickets();
         if (state.selectedTicket && state.selectedTicket._id === data.ticketId) {
             state.selectedTicket = ticket;
@@ -485,7 +489,8 @@ function renderTickets() {
             '</div>' +
             '<div class="ticket-subject">' + ticket.subject + '<span class="ticket-type-badge type-' + ticketType + '">' + typeLabel + '</span></div>' +
             (ticketType === 'project' && ticket.projectValue ? '<div class="project-value-display">£' + ticket.projectValue.toLocaleString() + '</div>' : '') +
-            (ticketType === 'referral' && ticket.projectValue ? '<div class="project-value-display" style="color:var(--type-referral);">£' + ticket.projectValue.toLocaleString() + '</div>' : '') +
+            (ticketType === 'referral' && ticket.projectValue && state.isAdmin ? '<div class="project-value-display" style="color:var(--type-referral);">£' + ticket.projectValue.toLocaleString() + '</div>' : '') +
+            (ticketType === 'referral' && ticket.opportunityCategory && !state.isAdmin ? '<div class="project-value-display">' + renderOpportunityBadge(ticket) + '</div>' : '') +
             '<div class="ticket-meta">' +
                 '<span class="ticket-priority"><span class="priority-dot ' + ticket.priority + '"></span> ' + ticket.priority + '</span>' +
                 '<span>' + formatDate(ticket._createdDate) + '</span>' +
@@ -548,8 +553,9 @@ function renderTicketDetail(ticket) {
                 '<div class="detail-info-item"><div class="detail-info-label">Category</div><div class="detail-info-value">' + (ticket.customCategory || formatCategory(ticket.category)) + '</div></div>' +
                 '<div class="detail-info-item"><div class="detail-info-label">Business Impact</div><div class="detail-info-value">' + ((ticket.businessImpact || 'moderate').charAt(0).toUpperCase() + (ticket.businessImpact || 'moderate').slice(1)) + '</div></div>' +
                 (ticketType === 'project' && ticket.projectValue ? '<div class="detail-info-item"><div class="detail-info-label">Project Value</div><div class="detail-info-value" style="color:var(--type-project);font-weight:600;">£' + ticket.projectValue.toLocaleString() + '</div></div>' : '') +
-                (ticketType === 'referral' && ticket.projectValue ? '<div class="detail-info-item"><div class="detail-info-label">Project Value</div><div class="detail-info-value" style="color:var(--type-referral);font-weight:600;">£' + ticket.projectValue.toLocaleString() + '</div></div>' : '') +
-                ((ticketType === 'project' || ticketType === 'referral') && ticket.projectValue ? '<div class="detail-info-item"><div class="detail-info-label">PO Status</div><div class="detail-info-value"><span class="po-status-badge ' + (ticket.purchaseOrderReceived ? 'received' : 'pending') + '">' + (ticket.purchaseOrderReceived ? '✓ PO Received' : '⏳ Awaiting PO') + '</span></div></div>' : '') +
+                (ticketType === 'referral' && ticket.projectValue && state.isAdmin ? '<div class="detail-info-item"><div class="detail-info-label">Project Value</div><div class="detail-info-value" style="color:var(--type-referral);font-weight:600;">£' + ticket.projectValue.toLocaleString() + '</div></div>' : '') +
+                (ticketType === 'referral' && ticket.opportunityCategory && !state.isAdmin ? '<div class="detail-info-item"><div class="detail-info-label">Opportunity</div><div class="detail-info-value">' + renderOpportunityBadge(ticket) + '</div></div>' : '') +
+                ((ticketType === 'project' || ticketType === 'referral') && ticket.projectValue && state.isAdmin ? '<div class="detail-info-item"><div class="detail-info-label">PO Status</div><div class="detail-info-value"><span class="po-status-badge ' + (ticket.purchaseOrderReceived ? 'received' : 'pending') + '">' + (ticket.purchaseOrderReceived ? '✓ PO Received' : '⏳ Awaiting PO') + '</span></div></div>' : '') +
                 (ticketType === 'referral' && ticket.companyReferred ? '<div class="detail-info-item"><div class="detail-info-label">Company Referred</div><div class="detail-info-value">' + ticket.companyReferred + '</div></div>' : '') +
                 (ticketType === 'referral' && ticket.referralEmail ? '<div class="detail-info-item"><div class="detail-info-label">Referral Contact</div><div class="detail-info-value">' + ticket.referralEmail + '</div></div>' : '') +
             '</div>' +
@@ -1205,6 +1211,21 @@ function formatTicketNumber(num) {
         return str.slice(0, 3) + '-' + str.slice(3);
     }
     return str;
+}
+
+function renderOpportunityBadge(ticket) {
+    if (!ticket.opportunityCategory) return '';
+    var colour = ticket.opportunityCategoryColour || '999999';
+    if (colour.charAt(0) !== '#') colour = '#' + colour;
+    // Light background: 20% opacity of colour
+    var r = parseInt(colour.slice(1,3), 16);
+    var g = parseInt(colour.slice(3,5), 16);
+    var b = parseInt(colour.slice(5,7), 16);
+    var bg = 'rgba(' + r + ',' + g + ',' + b + ',0.12)';
+    return '<span class="opportunity-badge" style="background:' + bg + ';color:' + colour + ';">' +
+        '<span class="opportunity-badge-dot" style="background:' + colour + ';"></span>' +
+        ticket.opportunityCategory +
+    '</span>';
 }
 
 function formatFullDateTime(date) {
