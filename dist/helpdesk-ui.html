@@ -35,6 +35,7 @@
     --type-support: #2196f3;
     --type-bug: #f44336;
     --type-project: #9c27b0;
+    --type-referral: #009688;
     --radius: 10px;
     --radius-sm: 6px;
     --shadow: 0 2px 8px rgba(0,0,0,0.08);
@@ -92,6 +93,25 @@ body {
 .contract-banner.visible { display: flex; }
 .contract-name { font-size: 18px; font-weight: 700; text-align: center; flex: 1; }
 .contract-tasks { display: flex; align-items: center; gap: 16px; }
+.contract-actions { display: flex; gap: 8px; margin-left: 16px; }
+.contract-action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: var(--radius-sm);
+    color: var(--white);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 500;
+}
+.contract-action-btn:hover { background: rgba(255,255,255,0.35); }
+.contract-action-btn svg { width: 20px; height: 20px; fill: var(--white); }
 .task-display {
     display: flex;
     flex-direction: column;
@@ -354,6 +374,7 @@ body {
 .ticket-type-tab.active[data-type="support"] { color: var(--type-support); }
 .ticket-type-tab.active[data-type="bug"] { color: var(--type-bug); }
 .ticket-type-tab.active[data-type="project"] { color: var(--type-project); }
+.ticket-type-tab.active[data-type="referral"] { color: var(--type-referral); }
 .ticket-type-count { background: var(--grey-200); padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; }
 .ticket-type-tab.active .ticket-type-count { background: var(--grey-100); }
 
@@ -512,6 +533,7 @@ body {
 .ticket-type-badge.type-support { background: #e3f2fd; color: var(--type-support); }
 .ticket-type-badge.type-bug { background: #ffebee; color: var(--type-bug); }
 .ticket-type-badge.type-project { background: #f3e5f5; color: var(--type-project); }
+.ticket-type-badge.type-referral { background: #e0f2f1; color: var(--type-referral); }
 .project-value-display { font-size: 12px; color: var(--type-project); font-weight: 600; margin-top: 4px; }
 
 .ticket-detail-content { padding: 24px; flex: 1; overflow-y: auto; min-height: 0; }
@@ -569,6 +591,7 @@ body {
 .admin-type-btn.active[data-type="support"] { background: var(--type-support); border-color: var(--type-support); }
 .admin-type-btn.active[data-type="bug"] { background: var(--type-bug); border-color: var(--type-bug); }
 .admin-type-btn.active[data-type="project"] { background: var(--type-project); border-color: var(--type-project); }
+.admin-type-btn.active[data-type="referral"] { background: var(--type-referral); border-color: var(--type-referral); }
 
 .project-value-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--grey-200); display: none; }
 .project-value-section.visible { display: block; }
@@ -924,6 +947,7 @@ body {
 .type-option[data-type="support"] svg { fill: var(--type-support); }
 .type-option[data-type="bug"] svg { fill: var(--type-bug); }
 .type-option[data-type="project"] svg { fill: var(--type-project); }
+.type-option[data-type="referral"] svg { fill: var(--type-referral); }
 .type-option-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
 .type-option-desc { font-size: 12px; color: var(--grey-600); }
 
@@ -1139,6 +1163,138 @@ body {
     display: inline-block !important;
 }
 
+/* Rules Popup */
+.rules-popup-overlay, .task-history-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+.rules-popup-overlay.active, .task-history-overlay.active { display: flex; }
+
+.rules-popup-content, .task-history-content {
+    background: var(--white);
+    border-radius: var(--radius);
+    width: 100%;
+    max-width: 520px;
+    max-height: 85vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-lg);
+}
+.task-history-content { max-width: 700px; }
+
+.rules-popup-header, .task-history-header {
+    padding: 20px 24px;
+    background: var(--accent);
+    color: var(--white);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.rules-popup-header h3, .task-history-header h3 { font-size: 18px; font-weight: 600; margin: 0; }
+.rules-popup-close, .task-history-close {
+    background: transparent;
+    border: none;
+    color: var(--white);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.rules-popup-close:hover, .task-history-close:hover { background: rgba(255,255,255,0.2); }
+.rules-popup-close svg, .task-history-close svg { width: 24px; height: 24px; fill: currentColor; }
+
+.rules-popup-body { padding: 24px; overflow-y: auto; }
+.rules-list { list-style: none; padding: 0; margin: 0; }
+.rules-list li {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--grey-100);
+    font-size: 14px;
+    line-height: 1.5;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+.rules-list li:last-child { border-bottom: none; }
+.rules-list li svg { width: 18px; height: 18px; fill: var(--accent); flex-shrink: 0; margin-top: 2px; }
+.rules-highlight {
+    background: var(--accent-light);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    margin-bottom: 16px;
+    text-align: center;
+}
+.rules-highlight-number { font-size: 28px; font-weight: 700; color: var(--accent); }
+.rules-highlight-label { font-size: 13px; color: var(--grey-600); margin-top: 4px; }
+.rules-highlight-row { display: flex; gap: 16px; margin-bottom: 16px; }
+.rules-highlight-row .rules-highlight { flex: 1; margin-bottom: 0; }
+
+/* Task History Popup */
+.task-history-body { padding: 24px; overflow-y: auto; flex: 1; }
+.task-history-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.task-history-table th {
+    text-align: left;
+    padding: 10px 12px;
+    background: var(--grey-50);
+    border-bottom: 2px solid var(--grey-200);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: var(--grey-700);
+    white-space: nowrap;
+}
+.task-history-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--grey-100);
+    vertical-align: top;
+}
+.task-history-table tr:hover td { background: var(--grey-50); }
+.task-history-type-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+.task-history-type-badge.PROJECT { background: #f3e5f5; color: var(--type-project); }
+.task-history-type-badge.REFERRAL { background: #e0f2f1; color: var(--type-referral); }
+.task-history-type-badge.FEEDBACK { background: #e3f2fd; color: var(--type-support); }
+.task-history-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--grey-500);
+    font-size: 14px;
+}
+.task-history-summary {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--grey-200);
+}
+.task-history-stat {
+    flex: 1;
+    text-align: center;
+    padding: 12px;
+    background: var(--grey-50);
+    border-radius: var(--radius-sm);
+}
+.task-history-stat-value { font-size: 22px; font-weight: 700; color: var(--accent); }
+.task-history-stat-label { font-size: 11px; color: var(--grey-600); margin-top: 2px; }
+
     </style>
 </head>
 <body>
@@ -1160,6 +1316,16 @@ body {
                     <div class="task-number" id="adjustedTasks">0</div>
                     <div class="task-label">Available</div>
                 </div>
+            </div>
+            <div class="contract-actions">
+                <button class="contract-action-btn" id="rulesBtn" title="Rules">
+                    <svg viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                    <span>Rules</span>
+                </button>
+                <button class="contract-action-btn" id="taskHistoryBtn" title="Task History">
+                    <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+                    <span>History</span>
+                </button>
             </div>
         </div>
 
@@ -1205,13 +1371,6 @@ body {
                         <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
                     </button>
                     <span class="header-action-label">Branding</span>
-                </div>
-                <div class="header-action-item">
-                    <button class="header-action-btn referral-btn" id="referralBtn" title="Refer a Company">
-                        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-                        <span class="referral-count" id="referralCount">0</span>
-                    </button>
-                    <span class="header-action-label">Referrals</span>
                 </div>
                 <div class="notification-wrapper">
                     <button class="header-action-btn notification-btn" id="notificationBtn" title="Notifications">
@@ -1299,6 +1458,10 @@ body {
             <button class="ticket-type-tab" data-type="project">
                 <svg class="type-icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4 14h-2v-4H7V9h6V5h2v4h4v4h-4v4z"/></svg>
                 Projects <span class="ticket-type-count" id="projectTypeCount">0</span>
+            </button>
+            <button class="ticket-type-tab" data-type="referral">
+                <svg class="type-icon" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                Referrals <span class="ticket-type-count" id="referralTypeCount">0</span>
             </button>
         </div>
 
@@ -1394,6 +1557,33 @@ body {
                                 <div class="type-option-title">New Project</div>
                                 <div class="type-option-desc">Request new development</div>
                             </div>
+                            <div class="type-option" data-type="referral">
+                                <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                                <div class="type-option-title">Referral</div>
+                                <div class="type-option-desc">Refer a company</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Referral Fields (shown when referral type selected) -->
+                    <div id="referralFieldsGroup" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label">Company Being Referred <span class="required">*</span></label>
+                            <input type="text" id="referralCompanyName" class="form-input" placeholder="Company name">
+                            <div class="field-error" id="referralCompanyError">Company name is required</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Contact Email <span class="required">*</span></label>
+                            <input type="email" id="referralEmailAddress" class="form-input" placeholder="contact@company.com">
+                            <div class="field-error" id="referralEmailError">Valid email address is required</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone (Optional)</label>
+                            <input type="text" id="referralPhoneNumber" class="form-input" placeholder="+44 123 456 7890">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Comment (Optional)</label>
+                            <textarea id="referralCommentText" class="form-textarea" style="min-height: 80px;" placeholder="Any additional information..."></textarea>
                         </div>
                     </div>
 
@@ -1489,42 +1679,32 @@ body {
         </div>
     </div>
 
-    <!-- Referral Modal -->
-    <div class="referral-modal" id="referralModal">
-        <div class="referral-modal-content">
-            <div class="referral-modal-header">
-                <h3 class="referral-modal-title">Refer a Company</h3>
-                <button class="referral-modal-close" id="closeReferralModal">
+    <!-- Rules Popup -->
+    <div class="rules-popup-overlay" id="rulesPopup">
+        <div class="rules-popup-content">
+            <div class="rules-popup-header">
+                <h3>Contract Rules</h3>
+                <button class="rules-popup-close" id="closeRulesPopup">
                     <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                 </button>
             </div>
-            <div class="referral-modal-body">
-                <div class="referral-bonus">
-                    <strong>+5 tasks</strong> per successful referral!
-                </div>
-                <form id="referralForm">
-                    <div class="referral-form-group">
-                        <label class="referral-form-label">Company Name <span class="required">*</span></label>
-                        <input type="text" id="referralCompany" class="referral-form-input" placeholder="Company name">
-                    </div>
-                    <div class="referral-form-group">
-                        <label class="referral-form-label">Contact Email <span class="required">*</span></label>
-                        <input type="email" id="referralEmail" class="referral-form-input" placeholder="contact@company.com">
-                    </div>
-                    <div class="referral-form-group">
-                        <label class="referral-form-label">Phone (Optional)</label>
-                        <input type="text" id="referralPhone" class="referral-form-input" placeholder="+44 123 456 7890">
-                    </div>
-                    <div class="referral-form-group">
-                        <label class="referral-form-label">Comment (Optional)</label>
-                        <textarea id="referralComment" class="referral-form-textarea" placeholder="Any additional information..."></textarea>
-                    </div>
-                    <button type="submit" class="referral-submit-btn">Submit Referral</button>
-                </form>
-                <div class="referral-list" id="referralList">
-                    <h4 class="referral-list-title">Your Referrals</h4>
-                    <div id="referralListItems"></div>
-                </div>
+            <div class="rules-popup-body" id="rulesPopupBody">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Task History Popup -->
+    <div class="task-history-overlay" id="taskHistoryPopup">
+        <div class="task-history-content">
+            <div class="task-history-header">
+                <h3>Task History</h3>
+                <button class="task-history-close" id="closeTaskHistoryPopup">
+                    <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            <div class="task-history-body" id="taskHistoryPopupBody">
+                <div style="text-align:center;padding:40px;color:var(--grey-500);">Loading task history...</div>
             </div>
         </div>
     </div>
@@ -1571,6 +1751,7 @@ const state = {
     contract: null,
     referrals: [],
     referralCount: 0,
+    taskHistory: [],
     notificationCount: 0,
     unreadNotes: {},
     notifications: []
@@ -1604,7 +1785,8 @@ window.addEventListener('message', (event) => {
         case 'showLiveIndicator': if (data.show) document.getElementById('liveIndicator').style.display = 'inline-flex'; break;
         case 'setContractInfo': handleContractInfo(data.contract); break;
         case 'setReferrals': handleSetReferrals(data); break;
-        case 'referralAdded': showToast('Referral submitted! +' + data.tasksAdded + ' tasks added', 'success'); closeReferralModal(); break;
+        case 'setTaskHistory': handleSetTaskHistory(data); break;
+        case 'referralAdded': showToast('Referral submitted! +' + data.tasksAdded + ' tasks added', 'success'); break;
         case 'ticketTypeUpdated': handleTicketTypeUpdated(data); break;
         case 'projectValueUpdated': handleProjectValueUpdated(data); break;
         case 'internalNotesUpdated': handleInternalNotesUpdated(data); break;
@@ -1676,8 +1858,11 @@ function handleContractInfo(contract) {
 function handleSetReferrals(data) {
     state.referrals = data.referrals || [];
     state.referralCount = data.count || 0;
-    document.getElementById('referralCount').textContent = state.referralCount;
-    renderReferralList();
+}
+
+function handleSetTaskHistory(data) {
+    state.taskHistory = data.taskHistory || [];
+    renderTaskHistory();
 }
 
 function handleTicketCreated(data) {
@@ -1996,6 +2181,7 @@ function renderTickets() {
             '</div>' +
             '<div class="ticket-subject">' + ticket.subject + '<span class="ticket-type-badge type-' + ticketType + '">' + typeLabel + '</span></div>' +
             (ticketType === 'project' && ticket.projectValue ? '<div class="project-value-display">£' + ticket.projectValue.toLocaleString() + '</div>' : '') +
+            (ticketType === 'referral' && ticket.projectValue ? '<div class="project-value-display" style="color:var(--type-referral);">£' + ticket.projectValue.toLocaleString() + '</div>' : '') +
             '<div class="ticket-meta">' +
                 '<span class="ticket-priority"><span class="priority-dot ' + ticket.priority + '"></span> ' + ticket.priority + '</span>' +
                 '<span>' + formatDate(ticket._createdDate) + '</span>' +
@@ -2021,15 +2207,16 @@ function renderTicketDetail(ticket) {
                 '<button class="admin-type-btn ' + (ticketType === 'support' ? 'active' : '') + '" data-type="support" onclick="changeTicketType(\'' + ticket._id + '\', \'support\')">Support</button>' +
                 '<button class="admin-type-btn ' + (ticketType === 'bug' ? 'active' : '') + '" data-type="bug" onclick="changeTicketType(\'' + ticket._id + '\', \'bug\')">Bug</button>' +
                 '<button class="admin-type-btn ' + (ticketType === 'project' ? 'active' : '') + '" data-type="project" onclick="changeTicketType(\'' + ticket._id + '\', \'project\')">Project</button>' +
+                '<button class="admin-type-btn ' + (ticketType === 'referral' ? 'active' : '') + '" data-type="referral" onclick="changeTicketType(\'' + ticket._id + '\', \'referral\')">Referral</button>' +
             '</div>' +
-            '<div class="project-value-section ' + (ticketType === 'project' ? 'visible' : '') + '">' +
+            '<div class="project-value-section ' + (ticketType === 'project' || ticketType === 'referral' ? 'visible' : '') + '">' +
                 '<div class="project-value-label">Project Value</div>' +
                 '<div class="project-value-input-wrapper">' +
                     '<span class="project-value-prefix">£</span>' +
                     '<input type="number" class="project-value-input" id="projectValueInput" value="' + (ticket.projectValue || 0) + '" min="0" step="100">' +
                     '<button class="project-value-save-btn" onclick="saveProjectValue(\'' + ticket._id + '\')">Save</button>' +
                 '</div>' +
-                '<div class="project-value-info">Every £1000 = 5 extra tasks</div>' +
+                (ticketType === 'referral' ? '<div class="project-value-info">Every £1,000 = 1 extra task (capped at £5,000 = 5 tasks)</div>' : '<div class="project-value-info">Every £1,000 = 5 extra tasks</div>') +
             '</div>' +
         '</div>';
     }
@@ -2053,6 +2240,9 @@ function renderTicketDetail(ticket) {
                 '<div class="detail-info-item"><div class="detail-info-label">Category</div><div class="detail-info-value">' + (ticket.customCategory || formatCategory(ticket.category)) + '</div></div>' +
                 '<div class="detail-info-item"><div class="detail-info-label">Business Impact</div><div class="detail-info-value">' + ((ticket.businessImpact || 'moderate').charAt(0).toUpperCase() + (ticket.businessImpact || 'moderate').slice(1)) + '</div></div>' +
                 (ticketType === 'project' && ticket.projectValue ? '<div class="detail-info-item"><div class="detail-info-label">Project Value</div><div class="detail-info-value" style="color:var(--type-project);font-weight:600;">£' + ticket.projectValue.toLocaleString() + '</div></div>' : '') +
+                (ticketType === 'referral' && ticket.projectValue ? '<div class="detail-info-item"><div class="detail-info-label">Project Value</div><div class="detail-info-value" style="color:var(--type-referral);font-weight:600;">£' + ticket.projectValue.toLocaleString() + '</div></div>' : '') +
+                (ticketType === 'referral' && ticket.companyReferred ? '<div class="detail-info-item"><div class="detail-info-label">Company Referred</div><div class="detail-info-value">' + ticket.companyReferred + '</div></div>' : '') +
+                (ticketType === 'referral' && ticket.referralEmail ? '<div class="detail-info-item"><div class="detail-info-label">Referral Contact</div><div class="detail-info-value">' + ticket.referralEmail + '</div></div>' : '') +
             '</div>' +
         '</div>' +
         (state.isAdmin ? '<div class="detail-section"><h3 class="detail-section-title">Update Status</h3>' +
@@ -2150,18 +2340,101 @@ function renderNotes(notes) {
 }
 
 function renderReferralList() {
-    const container = document.getElementById('referralListItems');
-    if (state.referrals.length === 0) {
-        container.innerHTML = '<div style="color:var(--grey-500);font-size:13px;">No referrals yet</div>';
+    // Legacy - referrals now shown as ticket type
+}
+
+// ==========================================
+// RULES POPUP
+// ==========================================
+function openRulesPopup() {
+    const contract = state.contract;
+    if (!contract) return;
+
+    const tasks = contract.baseTasks || contract.tasks || 0;
+    const maxTasksPerMonth = Math.floor(tasks / 12);
+    const body = document.getElementById('rulesPopupBody');
+
+    body.innerHTML = '<div class="rules-highlight-row">' +
+            '<div class="rules-highlight">' +
+                '<div class="rules-highlight-number">' + maxTasksPerMonth + '</div>' +
+                '<div class="rules-highlight-label">Max tasks per calendar month</div>' +
+            '</div>' +
+            '<div class="rules-highlight">' +
+                '<div class="rules-highlight-number">12</div>' +
+                '<div class="rules-highlight-label">Max hours per calendar month</div>' +
+            '</div>' +
+        '</div>' +
+        '<ul class="rules-list">' +
+            '<li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>' +
+                '<span>All tasks requested must fit within the <strong>12-hour limit</strong>.</span></li>' +
+            '<li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>' +
+                '<span>Tasks or hours unused within a calendar month <strong>do not accumulate or roll over</strong> to the subsequent month.</span></li>' +
+            '<li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>' +
+                '<span>Hourly Rate: <strong>£42.50</strong></span></li>' +
+            '<li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>' +
+                '<span>Average task duration: <strong>2.4 hours</strong></span></li>' +
+            '<li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>' +
+                '<span>Qualified referrals with a project value and purchase order will add <strong>1 task per £1,000</strong> of the stated value, <strong>capped at £5,000</strong>.</span></li>' +
+        '</ul>';
+
+    document.getElementById('rulesPopup').classList.add('active');
+}
+
+function closeRulesPopup() {
+    document.getElementById('rulesPopup').classList.remove('active');
+}
+
+// ==========================================
+// TASK HISTORY POPUP
+// ==========================================
+function openTaskHistoryPopup() {
+    document.getElementById('taskHistoryPopup').classList.add('active');
+    document.getElementById('taskHistoryPopupBody').innerHTML = '<div style="text-align:center;padding:40px;color:var(--grey-500);">Loading task history...</div>';
+    window.parent.postMessage({ action: 'getTaskHistory' }, '*');
+}
+
+function closeTaskHistoryPopup() {
+    document.getElementById('taskHistoryPopup').classList.remove('active');
+}
+
+function renderTaskHistory() {
+    const container = document.getElementById('taskHistoryPopupBody');
+    const history = state.taskHistory;
+
+    if (!history || history.length === 0) {
+        container.innerHTML = '<div class="task-history-empty">No task history found</div>';
         return;
     }
-    container.innerHTML = state.referrals.map(ref => 
-        '<div class="referral-item">' +
-            '<div class="referral-item-company">' + ref.companyReferred + '</div>' +
-            '<div class="referral-item-email">' + ref.emailAddress + '</div>' +
-            '<div class="referral-item-date">' + formatDate(ref._createdDate) + '</div>' +
-        '</div>'
-    ).join('');
+
+    // Summary stats
+    const totalTasks = history.length;
+    const totalValue = history.reduce(function(sum, h) { return sum + (h.taskValue || 0); }, 0);
+    const projects = history.filter(function(h) { return h.taskType === 'PROJECT'; }).length;
+    const referrals = history.filter(function(h) { return h.taskType === 'REFERRAL'; }).length;
+
+    var html = '<div class="task-history-summary">' +
+        '<div class="task-history-stat"><div class="task-history-stat-value">' + totalTasks + '</div><div class="task-history-stat-label">Total Entries</div></div>' +
+        '<div class="task-history-stat"><div class="task-history-stat-value">' + totalValue.toFixed(1) + '</div><div class="task-history-stat-label">Total Task Value</div></div>' +
+        '<div class="task-history-stat"><div class="task-history-stat-value">' + projects + '</div><div class="task-history-stat-label">Projects</div></div>' +
+        '<div class="task-history-stat"><div class="task-history-stat-value">' + referrals + '</div><div class="task-history-stat-label">Referrals</div></div>' +
+    '</div>';
+
+    html += '<table class="task-history-table"><thead><tr>' +
+        '<th>Date</th><th>Type</th><th>Ticket</th><th>Description</th><th>Task Value</th>' +
+    '</tr></thead><tbody>';
+
+    history.forEach(function(item) {
+        html += '<tr>' +
+            '<td>' + formatFullDateTime(item.taskCreatedDate) + '</td>' +
+            '<td><span class="task-history-type-badge ' + (item.taskType || '') + '">' + (item.taskType || '-') + '</span></td>' +
+            '<td>' + (item.ticketNumber ? '#' + formatTicketNumber(item.ticketNumber) : '-') + '</td>' +
+            '<td>' + (item.description || '-') + '</td>' +
+            '<td style="font-weight:600;text-align:center;">' + (item.taskValue || 0) + '</td>' +
+        '</tr>';
+    });
+
+    html += '</tbody></table>';
+    container.innerHTML = html;
 }
 
 // ==========================================
@@ -2297,17 +2570,29 @@ function closeNewTicketModal() {
     document.getElementById('subjectError').style.display = 'none';
     document.getElementById('descriptionError').style.display = 'none';
     document.getElementById('submitTicket').classList.remove('loading');
+    // Clear referral validation
+    var rc = document.getElementById('referralCompanyName');
+    var re = document.getElementById('referralEmailAddress');
+    if (rc) rc.classList.remove('invalid');
+    if (re) re.classList.remove('invalid');
+    var rce = document.getElementById('referralCompanyError');
+    var ree = document.getElementById('referralEmailError');
+    if (rce) rce.style.display = 'none';
+    if (ree) ree.style.display = 'none';
 }
 
 function openReferralModal() {
-    document.getElementById('referralModal').classList.add('active');
-    window.scrollTo(0, 0);
-    window.parent.postMessage({ action: 'modalOpened', modal: 'referral' }, '*');
+    // Legacy - referrals now handled via new ticket form
+    openModal();
+    // Auto-select referral type
+    setTimeout(function() {
+        var referralOption = document.querySelector('.type-option[data-type="referral"]');
+        if (referralOption) referralOption.click();
+    }, 100);
 }
 
 function closeReferralModal() {
-    document.getElementById('referralModal').classList.remove('active');
-    document.getElementById('referralForm').reset();
+    // Legacy stub
 }
 
 function openImageModal(url) {
@@ -2339,6 +2624,7 @@ function resetForm() {
 
     document.getElementById('customCategoryGroup').style.display = 'none';
     document.getElementById('categoryFormGroup').style.display = 'block';
+    document.getElementById('referralFieldsGroup').style.display = 'none';
     
     // Clear validation states
     document.getElementById('ticketSubject').classList.remove('invalid');
@@ -2346,6 +2632,20 @@ function resetForm() {
     document.getElementById('subjectError').style.display = 'none';
     document.getElementById('descriptionError').style.display = 'none';
     document.getElementById('submitTicket').classList.remove('loading');
+    
+    // Clear referral validation
+    var refCompany = document.getElementById('referralCompanyName');
+    var refEmail = document.getElementById('referralEmailAddress');
+    if (refCompany) { refCompany.classList.remove('invalid'); refCompany.value = ''; }
+    if (refEmail) { refEmail.classList.remove('invalid'); refEmail.value = ''; }
+    var refPhone = document.getElementById('referralPhoneNumber');
+    var refComment = document.getElementById('referralCommentText');
+    if (refPhone) refPhone.value = '';
+    if (refComment) refComment.value = '';
+    var refCompanyErr = document.getElementById('referralCompanyError');
+    var refEmailErr = document.getElementById('referralEmailError');
+    if (refCompanyErr) refCompanyErr.style.display = 'none';
+    if (refEmailErr) refEmailErr.style.display = 'none';
 }
 
 function submitTicket() {
@@ -2364,6 +2664,16 @@ function submitTicket() {
     subjectError.style.display = 'none';
     descriptionError.style.display = 'none';
     
+    // Clear referral validation
+    var refCompanyInput = document.getElementById('referralCompanyName');
+    var refEmailInput = document.getElementById('referralEmailAddress');
+    var refCompanyError = document.getElementById('referralCompanyError');
+    var refEmailError = document.getElementById('referralEmailError');
+    if (refCompanyInput) refCompanyInput.classList.remove('invalid');
+    if (refEmailInput) refEmailInput.classList.remove('invalid');
+    if (refCompanyError) refCompanyError.style.display = 'none';
+    if (refEmailError) refEmailError.style.display = 'none';
+    
     let hasError = false;
     
     if (subject.length < 5) {
@@ -2377,6 +2687,33 @@ function submitTicket() {
         hasError = true;
     }
     
+    // Referral-specific validation
+    var referralData = {};
+    if (ticketType === 'referral') {
+        var companyReferred = refCompanyInput ? refCompanyInput.value.trim() : '';
+        var emailAddress = refEmailInput ? refEmailInput.value.trim() : '';
+        var phone = document.getElementById('referralPhoneNumber') ? document.getElementById('referralPhoneNumber').value.trim() : '';
+        var comment = document.getElementById('referralCommentText') ? document.getElementById('referralCommentText').value.trim() : '';
+        
+        if (!companyReferred) {
+            if (refCompanyInput) refCompanyInput.classList.add('invalid');
+            if (refCompanyError) refCompanyError.style.display = 'block';
+            hasError = true;
+        }
+        if (!emailAddress || !emailAddress.includes('@')) {
+            if (refEmailInput) refEmailInput.classList.add('invalid');
+            if (refEmailError) refEmailError.style.display = 'block';
+            hasError = true;
+        }
+        
+        referralData = {
+            companyReferred: companyReferred,
+            emailAddress: emailAddress,
+            phone: phone,
+            comment: comment
+        };
+    }
+    
     if (hasError) {
         showToast('Please fill in the required fields', 'error');
         return;
@@ -2385,7 +2722,7 @@ function submitTicket() {
     // Show loader
     submitBtn.classList.add('loading');
 
-    window.parent.postMessage({
+    var messageData = {
         action: 'createTicket',
         ticketType: ticketType,
         category: ticketType === 'support' ? (state.selectedCategory || 'general') : ticketType,
@@ -2394,26 +2731,22 @@ function submitTicket() {
         description: description,
         priority: state.selectedPriority,
         businessImpact: state.selectedImpact
-    }, '*');
+    };
+    
+    // Add referral fields if referral type
+    if (ticketType === 'referral') {
+        messageData.companyReferred = referralData.companyReferred;
+        messageData.referralEmail = referralData.emailAddress;
+        messageData.referralPhone = referralData.phone;
+        messageData.referralComment = referralData.comment;
+    }
+
+    window.parent.postMessage(messageData, '*');
 }
 
 function submitReferral(e) {
-    e.preventDefault();
-    const companyReferred = document.getElementById('referralCompany').value.trim();
-    const emailAddress = document.getElementById('referralEmail').value.trim();
-    const phone = document.getElementById('referralPhone').value.trim();
-    const comment = document.getElementById('referralComment').value.trim();
-
-    if (!companyReferred) {
-        showToast('Company name is required', 'error');
-        return;
-    }
-    if (!emailAddress) {
-        showToast('Email is required', 'error');
-        return;
-    }
-
-    window.parent.postMessage({ action: 'addReferral', companyReferred: companyReferred, emailAddress: emailAddress, phone: phone, comment: comment }, '*');
+    // Legacy - referrals now submitted through the new ticket form
+    if (e) e.preventDefault();
 }
 
 // ==========================================
@@ -2436,11 +2769,13 @@ function updateTypeCounts() {
     const support = state.tickets.filter(t => (t.ticketType || 'support') === 'support').length;
     const bug = state.tickets.filter(t => t.ticketType === 'bug').length;
     const project = state.tickets.filter(t => t.ticketType === 'project').length;
+    const referral = state.tickets.filter(t => t.ticketType === 'referral').length;
 
     document.getElementById('allTypeCount').textContent = all;
     document.getElementById('supportTypeCount').textContent = support;
     document.getElementById('bugTypeCount').textContent = bug;
     document.getElementById('projectTypeCount').textContent = project;
+    document.getElementById('referralTypeCount').textContent = referral;
 }
 
 function populateFilters() {
@@ -2591,10 +2926,15 @@ function initEventListeners() {
     document.getElementById('cancelTicket').addEventListener('click', closeNewTicketModal);
     document.getElementById('submitTicket').addEventListener('click', submitTicket);
     document.getElementById('pacmanBtn').addEventListener('click', () => window.parent.postMessage({ action: 'pacman' }, '*'));
-    document.getElementById('referralBtn').addEventListener('click', openReferralModal);
-    document.getElementById('closeReferralModal').addEventListener('click', closeReferralModal);
-    document.getElementById('referralForm').addEventListener('submit', submitReferral);
     document.getElementById('imageModal').addEventListener('click', closeImageModal);
+    
+    // Rules and Task History popups
+    document.getElementById('rulesBtn').addEventListener('click', openRulesPopup);
+    document.getElementById('closeRulesPopup').addEventListener('click', closeRulesPopup);
+    document.getElementById('rulesPopup').addEventListener('click', function(e) { if (e.target.id === 'rulesPopup') closeRulesPopup(); });
+    document.getElementById('taskHistoryBtn').addEventListener('click', openTaskHistoryPopup);
+    document.getElementById('closeTaskHistoryPopup').addEventListener('click', closeTaskHistoryPopup);
+    document.getElementById('taskHistoryPopup').addEventListener('click', function(e) { if (e.target.id === 'taskHistoryPopup') closeTaskHistoryPopup(); });
     
     // Notification popup
     document.getElementById('notificationBtn').addEventListener('click', toggleNotificationPopup);
@@ -2658,11 +2998,19 @@ function initEventListeners() {
             option.classList.add('selected');
             state.selectedTicketType = option.dataset.type;
 
+            // Show/hide category fields
             if (option.dataset.type === 'support') {
                 document.getElementById('categoryFormGroup').style.display = 'block';
             } else {
                 document.getElementById('categoryFormGroup').style.display = 'none';
                 document.getElementById('customCategoryGroup').style.display = 'none';
+            }
+            
+            // Show/hide referral fields
+            if (option.dataset.type === 'referral') {
+                document.getElementById('referralFieldsGroup').style.display = 'block';
+            } else {
+                document.getElementById('referralFieldsGroup').style.display = 'none';
             }
         });
     });
@@ -2698,10 +3046,6 @@ function initEventListeners() {
     // Modal close on overlay click
     document.getElementById('newTicketModal').addEventListener('click', (e) => {
         if (e.target.id === 'newTicketModal') closeNewTicketModal();
-    });
-
-    document.getElementById('referralModal').addEventListener('click', (e) => {
-        if (e.target.id === 'referralModal') closeReferralModal();
     });
 }
 
