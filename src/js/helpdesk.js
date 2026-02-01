@@ -668,19 +668,21 @@ function openRulesPopup() {
     const maxTasksPerMonth = contract.tasksPerMonth || Math.floor((contract.baseTasks || 0) / 12);
     const body = document.getElementById('rulesPopupBody');
 
+    const hoursPerMonth = maxTasksPerMonth * 2.4;
+
     body.innerHTML = '<div class="rules-highlight-row">' +
             '<div class="rules-highlight">' +
                 '<div class="rules-highlight-number">' + maxTasksPerMonth + '</div>' +
                 '<div class="rules-highlight-label">Max tasks per calendar month</div>' +
             '</div>' +
             '<div class="rules-highlight">' +
-                '<div class="rules-highlight-number">12</div>' +
+                '<div class="rules-highlight-number">' + hoursPerMonth + '</div>' +
                 '<div class="rules-highlight-label">Max hours per calendar month</div>' +
             '</div>' +
         '</div>' +
         '<ul class="rules-list">' +
             '<li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>' +
-                '<span>All tasks requested must fit within the <strong>12-hour limit</strong>.</span></li>' +
+                '<span>All tasks requested must fit within the <strong>' + hoursPerMonth + '-hour limit</strong>.</span></li>' +
             '<li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>' +
                 '<span>Tasks or hours unused within a calendar month <strong>do not accumulate or roll over</strong> to the subsequent month.</span></li>' +
             '<li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>' +
