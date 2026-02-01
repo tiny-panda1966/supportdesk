@@ -83,7 +83,35 @@ body {
     flex-shrink: 0;
 }
 .contract-banner.visible { display: flex; }
-.contract-name { font-size: 18px; font-weight: 700; text-align: center; flex: 1; }
+.contract-center { flex: 1; text-align: center; }
+.contract-name { font-size: 18px; font-weight: 700; }
+.contract-monthly {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 6px;
+}
+.monthly-progress-track {
+    width: 80px;
+    height: 6px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 3px;
+    overflow: hidden;
+}
+.monthly-progress-fill {
+    height: 100%;
+    background: #4caf50;
+    border-radius: 3px;
+    transition: width 0.4s ease;
+}
+.monthly-progress-fill.warning { background: #ff9800; }
+.monthly-progress-fill.danger { background: #f44336; }
+.monthly-usage-text {
+    font-size: 12px;
+    opacity: 0.9;
+    white-space: nowrap;
+}
 .contract-tasks { display: flex; align-items: center; gap: 16px; }
 .contract-actions { display: flex; gap: 8px; margin-left: 16px; }
 .contract-action-btn {
@@ -1286,3 +1314,60 @@ body {
 }
 .task-history-stat-value { font-size: 22px; font-weight: 700; color: var(--accent); }
 .task-history-stat-label { font-size: 11px; color: var(--grey-600); margin-top: 2px; }
+
+/* PO Checkbox */
+.po-checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 0;
+    cursor: pointer;
+    user-select: none;
+}
+.po-checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+.po-checkbox-text {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--grey-800);
+}
+.po-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+.po-status-badge.received { background: #e8f5e9; color: #2e7d32; }
+.po-status-badge.pending { background: #fff3e0; color: #e65100; }
+.project-value-save-full {
+    width: 100%;
+    margin-top: 4px;
+    padding: 8px 16px;
+}
+
+/* Task History UNUSED/OVERUSE badges */
+.task-history-type-badge.UNUSED { background: #fff3e0; color: #e65100; }
+.task-history-type-badge.OVERUSE { background: #fce4ec; color: #c62828; }
+.task-history-type-badge.RENEWAL { background: #e8f5e9; color: #2e7d32; }
+
+/* No tasks warning */
+.no-tasks-warning {
+    background: #fff3e0;
+    border: 1px solid #ffb74d;
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    margin: 12px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #e65100;
+}
+.no-tasks-warning svg { width: 20px; height: 20px; fill: #e65100; flex-shrink: 0; }
