@@ -1509,6 +1509,7 @@ function initEventListeners() {
     document.getElementById('cancelTicket').addEventListener('click', closeNewTicketModal);
     document.getElementById('submitTicket').addEventListener('click', submitTicket);
     document.getElementById('pacmanBtn').addEventListener('click', () => window.parent.postMessage({ action: 'pacman' }, '*'));
+    document.getElementById('brandingBtn').addEventListener('click', () => window.parent.postMessage({ action: 'brandingGuide' }, '*'));
     document.getElementById('imageModal').addEventListener('click', closeImageModal);
     
     // Rules and Task History popups
