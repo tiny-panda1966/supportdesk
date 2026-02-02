@@ -3680,15 +3680,12 @@ function initEventListeners() {
             document.querySelectorAll('.category-card').forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
             state.selectedCategory = card.dataset.category;
-            // Auto-populate subject with category name (not for Custom)
-            if (card.dataset.category !== 'other') {
+            var subjectField = document.getElementById('ticketSubject');
+            if (card.dataset.category === 'other') {
+                if (subjectField) { subjectField.value = ''; subjectField.focus(); }
+            } else {
                 var title = card.querySelector('.category-card-title');
-                if (title) {
-                    var subjectField = document.getElementById('ticketSubject');
-                    if (subjectField && !subjectField.value.trim()) {
-                        subjectField.value = title.textContent.trim();
-                    }
-                }
+                if (title && subjectField) subjectField.value = title.textContent.trim();
             }
         });
     });
