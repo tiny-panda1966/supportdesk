@@ -394,12 +394,15 @@ function toggleNotificationPopup(e) {
     e.preventDefault();
     e.stopPropagation();
     const popup = document.getElementById('notificationPopup');
+    const wrapper = popup.parentElement;
     popup.classList.toggle('active');
+    wrapper.classList.toggle('mobile-open', popup.classList.contains('active'));
     console.log('Notification popup toggled:', popup.classList.contains('active'));
 }
 
 function closeNotificationPopup() {
     document.getElementById('notificationPopup').classList.remove('active');
+    document.querySelector('.notification-wrapper').classList.remove('mobile-open');
 }
 
 function renderNotificationPopup() {
@@ -1541,6 +1544,12 @@ function initEventListeners() {
     document.getElementById('notificationBtn').addEventListener('click', toggleNotificationPopup);
     document.getElementById('closeNotificationPopup').addEventListener('click', closeNotificationPopup);
     document.getElementById('clearAllNotifications').addEventListener('click', clearAllNotifications);
+    // Close notification popup when clicking outside (for mobile backdrop)
+    document.querySelector('.notification-wrapper').addEventListener('click', function(e) {
+        if (e.target === this && this.classList.contains('mobile-open')) {
+            closeNotificationPopup();
+        }
+    });
 
     document.getElementById('saveProfileBtn').addEventListener('click', () => {
         const name = document.getElementById('profileNameInput').value.trim();
