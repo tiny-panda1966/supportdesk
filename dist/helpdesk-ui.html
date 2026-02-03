@@ -1269,15 +1269,20 @@ body {
     .tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; gap: 4px; padding: 6px; flex-wrap: nowrap; }
     .tab { padding: 10px 14px; font-size: 13px; white-space: nowrap; flex-shrink: 0; }
     .notification-popup {
-        position: fixed;
-        top: 50%;
-        left: 50%;
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        right: auto !important;
+        bottom: auto !important;
         transform: translate(-50%, -50%);
-        right: auto;
-        width: calc(100vw - 32px);
+        width: calc(100% - 32px);
         max-width: 380px;
-        max-height: calc(100vh - 80px);
-        margin-top: 0;
+        max-height: 70vh;
+        margin: 0;
+        z-index: 1100;
+    }
+    .notification-popup.active {
+        display: flex;
     }
 }
 
