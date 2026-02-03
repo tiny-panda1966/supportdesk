@@ -1241,6 +1241,7 @@ body {
 .image-modal img { max-width: 90%; max-height: 90%; object-fit: contain; }
 
 @media (max-width: 900px) {
+    .container { padding: 16px; padding-top: 20px; }
     .main-content { grid-template-columns: 1fr; }
     .ticket-detail-panel { display: none; }
     .ticket-detail-panel.active {
@@ -1281,22 +1282,22 @@ body {
     .feedback-btn { padding: 8px; }
     
     /* Header mobile */
-    .header { flex-wrap: wrap; gap: 12px; padding: 12px 16px; }
+    .header { flex-wrap: wrap; gap: 12px; padding: 12px 16px; overflow: visible; }
     .header-left { flex: 1; min-width: 0; }
     .header-title { font-size: 18px; }
     .header-subtitle { font-size: 11px; }
     .header-center { display: none !important; }
     .header-actions { 
         gap: 8px;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        padding-bottom: 4px;
+        flex-wrap: wrap;
+        padding-top: 10px;
     }
     .header-action-item { flex-shrink: 0; overflow: visible; }
     .header-action-label { display: none; }
     .header-action-btn { width: 36px; height: 36px; overflow: visible; }
     .header-action-btn svg { width: 18px; height: 18px; }
-    .notification-badge { top: -6px; right: -6px; min-width: 16px; height: 16px; font-size: 10px; }
+    .notification-badge { top: -2px; right: -2px; min-width: 16px; height: 16px; font-size: 10px; transform: none; }
+    .notification-wrapper { overflow: visible; }
     .user-info { display: none; }
     .account-dropdown-btn { padding: 6px 10px; font-size: 12px; }
     
