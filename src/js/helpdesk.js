@@ -513,6 +513,7 @@ function renderTickets() {
 function renderTicketDetail(ticket) {
     const container = document.getElementById('ticketDetailContent');
     const ticketType = ticket.ticketType || 'support';
+    const isLocked = (ticket.status === 'resolved' || ticket.status === 'closed') && !state.isAdmin;
 
     let adminTypeSection = '';
     if (state.isAdmin) {
@@ -548,6 +549,7 @@ function renderTicketDetail(ticket) {
                 '<span class="detail-meta-item"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>' + formatDate(ticket._createdDate) + '</span>' +
                 '<span class="detail-meta-item"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>' + (ticket.userName || ticket.userEmail) + '</span>' +
                 '<span class="ticket-type-badge type-' + ticketType + '">' + ticketType.charAt(0).toUpperCase() + ticketType.slice(1) + '</span>' +
+                (isLocked ? '<span class="ticket-locked-badge" title="This ticket is resolved and read-only"><svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg></span>' : '') +
             '</div>' +
         '</div>' +
         '<div class="detail-section"><h3 class="detail-section-title">Description</h3><div class="detail-description">' + ticket.description + '</div></div>' +
@@ -585,6 +587,7 @@ function renderTicketDetail(ticket) {
         '</div>' +
         '<div class="notes-section"><h3 class="detail-section-title">Messages</h3>' +
             '<div class="notes-container" id="notesContainer">' + renderNotes(ticket.notes || []) + '</div>' +
+            (isLocked ? '<div class="ticket-locked-banner"><svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg><span>This ticket has been resolved</span></div>' :
             '<div id="pendingAttachmentContainer"></div>' +
             '<div class="note-input-container">' +
                 '<div class="note-input-wrapper">' +
@@ -598,7 +601,7 @@ function renderTicketDetail(ticket) {
                 '<button class="note-send-btn" id="sendNoteBtn">' +
                     '<svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>' +
                 '</button>' +
-            '</div>' +
+            '</div>') +
         '</div>';
 
     container.style.display = 'block';
@@ -613,17 +616,28 @@ function renderTicketDetail(ticket) {
         btn.addEventListener('click', () => updateStatus(ticket._id, btn.dataset.status));
     });
 
-    document.getElementById('attachBtn').addEventListener('click', () => {
-        window.parent.postMessage({ action: 'requestUpload' }, '*');
-    });
+    const attachBtn = document.getElementById('attachBtn');
+    const sendNoteBtn = document.getElementById('sendNoteBtn');
+    const noteInput = document.getElementById('noteInput');
+    
+    if (attachBtn) {
+        attachBtn.addEventListener('click', () => {
+            window.parent.postMessage({ action: 'requestUpload' }, '*');
+        });
+    }
 
-    document.getElementById('sendNoteBtn').addEventListener('click', () => sendNote(ticket._id));
-    document.getElementById('noteInput').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendNote(ticket._id);
-        }
-    });
+    if (sendNoteBtn) {
+        sendNoteBtn.addEventListener('click', () => sendNote(ticket._id));
+    }
+    
+    if (noteInput) {
+        noteInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendNote(ticket._id);
+            }
+        });
+    }
 
     updatePendingAttachmentUI();
     scrollNotesToBottom();
